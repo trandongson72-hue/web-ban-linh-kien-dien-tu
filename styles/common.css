@@ -1,0 +1,379 @@
+/* CSS dùng chung cho index.html, shopping.html, account.html và admin.html */
+
+/* =========================
+   1. Biến dùng chung
+========================= */
+:root {
+    --primary-color: #0d6efd;
+    --primary-hover: #0b5ed7;
+    --secondary-color: #198754;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --dark-color: #212529;
+    --light-color: #f8f9fa;
+    --gray-border: #dee2e6;
+    --text-muted: #6c757d;
+    --sidebar-width: 250px;
+}
+
+/* =========================
+   2. Reset và bố cục cơ bản
+========================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f6f9;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-container {
+    max-width: 1240px;
+    width: 100%;
+    margin: 20px auto;
+    padding: 0 16px;
+}
+
+/* =========================
+   3. Header và điều hướng
+========================= */
+header {
+    background-color: #1a2238;
+    color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.top-bar {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+}
+
+.logo span {
+    color: #0dcaf0;
+}
+
+.search-box-top {
+    flex: 1;
+    max-width: 480px;
+    display: flex;
+}
+
+.search-box-top input {
+    width: 100%;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 4px 0 0 4px;
+    outline: none;
+}
+
+.search-box-top button {
+    background: var(--primary-color);
+    border: none;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.nav-actions a,
+.nav-actions button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.nav-actions .cart-badge {
+    background: var(--danger-color);
+    border-radius: 10px;
+    padding: 2px 7px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* =========================
+   4. Trạng thái hiển thị view
+========================= */
+.view-section {
+    display: none;
+}
+
+.view-section.active {
+    display: block;
+}
+
+/* =========================
+   5. Form và nút bấm
+========================= */
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #495057;
+}
+
+.form-control,
+.form-select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--gray-border);
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: #fff;
+}
+
+.btn-success {
+    background: var(--secondary-color);
+    color: #fff;
+}
+
+.btn-danger {
+    background: var(--danger-color);
+    color: #fff;
+}
+
+.btn-warning {
+    background: var(--warning-color);
+    color: #212529;
+}
+
+.btn-outline-primary {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: transparent;
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+/* =========================
+   6. Modal / Popup
+========================= */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 16px;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 650px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--gray-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-body {
+    padding: 18px;
+}
+
+.modal-footer {
+    padding: 12px 18px;
+    border-top: 1px solid var(--gray-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* =========================
+   7. Bảng dữ liệu
+========================= */
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 12px;
+}
+
+.custom-table th,
+.custom-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--gray-border);
+    text-align: left;
+    font-size: 14px;
+}
+
+.custom-table th {
+    background: #f1f4f9;
+    font-weight: 600;
+    color: #333;
+}
+
+/* =========================
+   8. Badge / Nhãn trạng thái
+========================= */
+.badge {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.badge-success {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.badge-warning {
+    background: #fff3cd;
+    color: #664d03;
+}
+
+.badge-danger {
+    background: #f8d7da;
+    color: #842029;
+}
+
+.badge-info {
+    background: #cff4fc;
+    color: #055160;
+}
+
+/* =========================
+   9. Footer
+========================= */
+footer {
+    background: #111827;
+    color: #9ca3af;
+    padding: 24px 16px;
+    text-align: center;
+    font-size: 13px;
+    margin-top: auto;
+}
+
+
+
+/* Các style từng được viết inline, nay đã chuyển thành class dùng chung. */
+
+.u-style-0463bfe3 {
+    display: none;
+}
+
+.u-style-560df82d {
+    margin-bottom: 12px;
+}
+
+.u-style-5cde1b2d {
+    opacity: 0.8;
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+.u-style-608a14c6 {
+    width: 100%;
+}
+
+.u-style-925271f0 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.u-style-a3452ca1 {
+    margin-top: 4px;
+    font-size: 12px;
+}
+
+.u-style-cfc24e61 {
+    margin: 12px 0;
+}
+
+.u-style-fab19c78 {
+    display: flex;
+    gap: 10px;
+}

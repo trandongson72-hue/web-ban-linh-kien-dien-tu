@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>TechStore - Cửa Hàng Linh Kiện Điện Tử</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="styles/common.css" rel="stylesheet" />
+    <link href="styles/account.css" rel="stylesheet" />
+</head>
+
+<body>
+    <header id="client-header">
+        <div class="top-bar">
+            <a class="logo" data-js-action="navigateTo" data-js-args='["view-home"]' data-js-event="click"
+                href="javascript:void(0)">
+                <i class="fa-solid fa-microchip"></i> TECH<span>STORE</span>
+            </a>
+            <div class="search-box-top">
+                <input id="top-search-input" placeholder="Tìm kiếm linh kiện (bàn phím, chuột, tai nghe...)..."
+                    type="text" />
+                <button data-js-action="executeQuickSearch" data-js-args="[]" data-js-event="click" type="button"><i
+                        class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <div class="nav-actions">
+                <div class="u-style-fab19c78" id="auth-links">
+                    <!-- Nút đăng nhập/đăng ký hoặc thông tin user sẽ render động -->
+                </div>
+                <button data-js-action="handleCartClick" data-js-args="[]" data-js-event="click">
+                    <i class="fa-solid fa-cart-shopping"></i> Giỏ hàng
+                    <span class="cart-badge" id="cart-counter">0</span>
+                </button>
+                <a class="u-style-5cde1b2d" data-js-action="navigateTo" data-js-args='["view-admin-login"]'
+                    data-js-event="click" href="javascript:void(0)">
+                    <i class="fa-solid fa-lock"></i> Kênh Quản Trị
+                </a>
+            </div>
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="view-section active" id="view-profile">
+            <h2><i class="fa-solid fa-user-gear"></i> Quản Lý Thông Tin Cá Nhân</h2>
+            <div class="account-style-193ae3ff">
+                <div class="form-group u-style-560df82d">
+                    <label>Tên tài khoản</label>
+                    <input class="form-control" disabled="" id="prof-username" type="text" />
+                </div>
+                <div class="form-group u-style-560df82d">
+                    <label>Họ và tên</label>
+                    <input class="form-control" id="prof-fullname" type="text" />
+                </div>
+                <div class="form-group u-style-560df82d">
+                    <label>Số điện thoại</label>
+                    <input class="form-control" id="prof-phone" type="text" />
+                </div>
+                <div class="form-group u-style-560df82d">
+                    <label>Địa chỉ mặc định</label>
+                    <textarea class="form-control" id="prof-address" rows="3"></textarea>
+                </div>
+                <button class="btn btn-success" data-js-action="saveProfileChanges" data-js-args="[]"
+                    data-js-event="click"><i class="fa-solid fa-floppy-disk"></i> Cập Nhật Thông
+                    Tin</button>
+            </div>
+        </div>
+        <div class="view-section" id="view-auth">
+            <div class="account-style-dd7a1ff4">
+                <div class="account-style-74122c81">
+                    <button class="btn btn-outline-primary active" data-js-action="switchAuthTab"
+                        data-js-args='["login"]' data-js-event="click" id="tab-btn-login">Đăng
+                        Nhập</button>
+                    <button class="btn btn-outline-primary" data-js-action="switchAuthTab" data-js-args='["register"]'
+                        data-js-event="click" id="tab-btn-register">Đăng Ký</button>
+                </div>
+                <!-- Form Đăng nhập -->
+                <div id="form-login-block">
+                    <div class="form-group u-style-560df82d">
+                        <label>Tên đăng nhập</label>
+                        <input class="form-control" id="auth-login-user" placeholder="Tên tài khoản" type="text" />
+                    </div>
+                    <div class="form-group account-style-436583df">
+                        <label>Mật khẩu</label>
+                        <input class="form-control" id="auth-login-pass" placeholder="Mật khẩu" type="password" />
+                    </div>
+                    <button class="btn btn-primary u-style-608a14c6" data-js-action="executeClientLogin"
+                        data-js-args="[]" data-js-event="click">Đăng
+                        Nhập</button>
+                </div>
+                <!-- Form Đăng ký -->
+                <div class="u-style-0463bfe3" id="form-register-block">
+                    <div class="form-group u-style-560df82d">
+                        <label>Tên đăng nhập</label>
+                        <input class="form-control" id="auth-reg-user" type="text" />
+                    </div>
+                    <div class="form-group u-style-560df82d">
+                        <label>Mật khẩu</label>
+                        <input class="form-control" id="auth-reg-pass" type="password" />
+                    </div>
+                    <div class="form-group u-style-560df82d">
+                        <label>Họ và tên</label>
+                        <input class="form-control" id="auth-reg-name" type="text" />
+                    </div>
+                    <div class="form-group u-style-560df82d">
+                        <label>Số điện thoại</label>
+                        <input class="form-control" id="auth-reg-phone" type="text" />
+                    </div>
+                    <div class="form-group account-style-436583df">
+                        <label>Địa chỉ giao hàng mặc định</label>
+                        <input class="form-control" id="auth-reg-address" type="text" />
+                    </div>
+                    <button class="btn btn-success u-style-608a14c6" data-js-action="executeClientRegister"
+                        data-js-args="[]" data-js-event="click">Tạo Tài
+                        Khoản</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>Đồ án cuối kỳ Học phần: Lập trình web và ứng dụng - Clickable Prototype Website</p>
+        <p class="u-style-a3452ca1">Hỗ trợ chấm Local Offline trên Google Chrome / Firefox.</p>
+    </footer>
+    <script src="scripts/app.js"></script>
+</body>
+
+</html>

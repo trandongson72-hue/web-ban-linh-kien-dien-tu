@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+
+<html lang="vi">
+
+<head>
+        <meta charset="utf-8" />
+        <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+        <title>TechStore - Cửa Hàng Linh Kiện Điện Tử</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+        <link href="styles/common.css" rel="stylesheet" />
+        <link href="styles/shopping.css" rel="stylesheet" />
+</head>
+
+<body>
+        <header id="client-header">
+                <div class="top-bar">
+                        <a class="logo" data-js-action="navigateTo" data-js-args='["view-home"]' data-js-event="click"
+                                href="javascript:void(0)">
+                                <i class="fa-solid fa-microchip"></i> TECH<span>STORE</span>
+                        </a>
+                        <div class="search-box-top">
+                                <input id="top-search-input"
+                                        placeholder="Tìm kiếm linh kiện (bàn phím, chuột, tai nghe...)..."
+                                        type="text" />
+                                <button data-js-action="executeQuickSearch" data-js-args="[]" data-js-event="click"
+                                        type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
+                        <div class="nav-actions">
+                                <div class="u-style-fab19c78" id="auth-links">
+                                        <!-- Nút đăng nhập/đăng ký hoặc thông tin user sẽ render động -->
+                                </div>
+                                <button data-js-action="handleCartClick" data-js-args="[]" data-js-event="click">
+                                        <i class="fa-solid fa-cart-shopping"></i> Giỏ hàng
+                                        <span class="cart-badge" id="cart-counter">0</span>
+                                </button>
+                                <a class="u-style-5cde1b2d" data-js-action="navigateTo"
+                                        data-js-args='["view-admin-login"]' data-js-event="click"
+                                        href="javascript:void(0)">
+                                        <i class="fa-solid fa-lock"></i> Kênh Quản Trị
+                                </a>
+                        </div>
+                </div>
+        </header>
+        <div class="main-container">
+                <div class="view-section active" id="view-cart">
+                        <h2><i class="fa-solid fa-cart-shopping"></i> Giỏ Hàng Của Bạn</h2>
+                        <div class="shopping-style-44790216">
+                                <table class="custom-table">
+                                        <thead>
+                                                <tr>
+                                                        <th>Sản phẩm</th>
+                                                        <th>Đơn giá</th>
+                                                        <th class="shopping-style-31bbcdec">Số lượng</th>
+                                                        <th>Thành tiền</th>
+                                                        <th>Thao tác</th>
+                                                </tr>
+                                        </thead>
+                                        <tbody id="cart-table-body"></tbody>
+                                </table>
+                                <div class="cart-summary u-style-925271f0">
+                                        <div>
+                                                <h3>Tổng thanh toán: <span class="shopping-style-6a3dc63f"
+                                                                id="cart-total-price">0đ</span></h3>
+                                        </div>
+                                        <div>
+                                                <button class="btn btn-secondary" data-js-action="navigateTo"
+                                                        data-js-args='["view-home"]' data-js-event="click">Tiếp tục mua
+                                                        hàng</button>
+                                                <button class="btn btn-success" data-js-action="navigateToCheckout"
+                                                        data-js-args="[]" data-js-event="click">Tiến hành Đặt Hàng <i
+                                                                class="fa-solid fa-arrow-right"></i></button>
+                                        </div>
+                                </div>
+                        </div>
+                </div>
+                <div class="view-section" id="view-checkout">
+                        <button class="btn btn-secondary btn-sm" data-js-action="navigateTo"
+                                data-js-args='["view-cart"]' data-js-event="click"><i
+                                        class="fa-solid fa-arrow-left"></i> Quay lại giỏ</button>
+                        <div class="shopping-style-e2e4125d">
+                                <div class="shopping-style-ec6280ac">
+                                        <h3>Thông Tin Giao Hàng &amp; Thanh Toán</h3>
+                                        <div class="shopping-style-42a8cd90">
+                                                <label class="shopping-style-d64e1cdd">Chọn
+                                                        nguồn địa chỉ nhận hàng:</label>
+                                                <label class="shopping-style-3282f0d7">
+                                                        <input checked="" data-js-action="toggleAddressInput"
+                                                                data-js-args='["$value"]' data-js-event="change"
+                                                                name="address_source" type="radio" value="profile" />
+                                                        Lấy từ địa chỉ tài khoản
+                                                </label>
+                                                <label class="shopping-style-b7ade57c">
+                                                        <input data-js-action="toggleAddressInput"
+                                                                data-js-args='["$value"]' data-js-event="change"
+                                                                name="address_source" type="radio" value="custom" />
+                                                        Nhập địa chỉ giao hàng mới
+                                                </label>
+                                        </div>
+                                        <div class="form-group u-style-560df82d">
+                                                <label>Họ và tên người nhận</label>
+                                                <input class="form-control" id="checkout-name" type="text" />
+                                        </div>
+                                        <div class="form-group u-style-560df82d">
+                                                <label>Số điện thoại</label>
+                                                <input class="form-control" id="checkout-phone" type="text" />
+                                        </div>
+                                        <div class="form-group u-style-560df82d">
+                                                <label>Địa chỉ nhận hàng</label>
+                                                <textarea class="form-control" id="checkout-address"
+                                                        rows="2"></textarea>
+                                        </div>
+                                        <div class="shopping-style-44790216">
+                                                <label class="shopping-style-d64e1cdd">Phương
+                                                        thức thanh toán:</label>
+                                                <label class="shopping-style-30aef29b">
+                                                        <input checked="" name="payment_method" type="radio"
+                                                                value="COD" /> Thanh toán tiền mặt khi nhận hàng (COD)
+                                                </label>
+                                                <label class="shopping-style-30aef29b">
+                                                        <input name="payment_method" type="radio" value="BANK" /> Chuyển
+                                                        khoản ngân hàng (Qua mã QR)
+                                                </label>
+                                                <label class="shopping-style-76cd897a">
+                                                        <input name="payment_method" type="radio" value="ONLINE" />
+                                                        Thanh toán trực tuyến (Ví điện tử MoMo/VNPAY)
+                                                </label>
+                                        </div>
+                                        <button class="btn btn-primary shopping-style-50a92d58"
+                                                data-js-action="submitOrder" data-js-args="[]" data-js-event="click">
+                                                <i class="fa-solid fa-check"></i> Xác Nhận Đặt Hàng
+                                        </button>
+                                </div>
+                                <div class="shopping-style-ec6280ac">
+                                        <h3>Tóm Tắt Đơn Hàng</h3>
+                                        <div class="shopping-style-86f7f6b3" id="checkout-items-summary"></div>
+                                        <hr class="shopping-style-2f3ec526" />
+                                        <h4>Tổng tiền: <span class="shopping-style-6a3dc63f"
+                                                        id="checkout-total-val">0đ</span></h4>
+                                </div>
+                        </div>
+                </div>
+                <div class="view-section" id="view-order-success">
+                        <div class="shopping-style-d3f9527a">
+                                <i class="fa-solid fa-circle-check shopping-style-12ab0bd8"></i>
+                                <h2 class="u-style-cfc24e61">Đặt Hàng Thành Công!</h2>
+                                <p class="shopping-style-533f11b0">Cảm ơn bạn đã mua sắm. Dưới đây là thông tin đơn
+                                        đặt hàng của bạn.</p>
+                                <div class="shopping-style-cc3d5d47" id="invoice-details">
+                                </div>
+                                <div class="shopping-style-f71e7e88">
+                                        <button class="btn btn-primary" data-js-action="navigateTo"
+                                                data-js-args='["view-home"]' data-js-event="click">Về trang chủ</button>
+                                        <button class="btn btn-secondary" data-js-action="navigateTo"
+                                                data-js-args='["view-order-history"]' data-js-event="click">Xem lịch sử
+                                                đơn mua</button>
+                                </div>
+                        </div>
+                </div>
+                <div class="view-section" id="view-order-history">
+                        <h2><i class="fa-solid fa-clock-rotate-left"></i> Lịch Sử Đơn Hàng Đã Mua</h2>
+                        <div class="shopping-style-44790216">
+                                <table class="custom-table">
+                                        <thead>
+                                                <tr>
+                                                        <th>Mã Đơn</th>
+                                                        <th>Ngày Đặt</th>
+                                                        <th>Người Nhận</th>
+                                                        <th>Tổng Tiền</th>
+                                                        <th>Phương Thức</th>
+                                                        <th>Tình Trạng</th>
+                                                        <th>Chi Tiết</th>
+                                                </tr>
+                                        </thead>
+                                        <tbody id="order-history-tbody"></tbody>
+                                </table>
+                        </div>
+                </div>
+        </div>
+        <footer>
+                <p>Đồ án cuối kỳ Học phần: Lập trình web và ứng dụng - Clickable Prototype Website</p>
+                <p class="u-style-a3452ca1">Hỗ trợ chấm Local Offline trên Google Chrome / Firefox.</p>
+        </footer>
+        <script src="scripts/app.js"></script>
+</body>
+
+</html>

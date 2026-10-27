@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>TechStore - Cửa Hàng Linh Kiện Điện Tử</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="styles/common.css" rel="stylesheet" />
+    <link href="styles/index.css" rel="stylesheet" />
+</head>
+
+<body>
+    <header id="client-header">
+        <div class="top-bar">
+            <a class="logo" data-js-action="navigateTo" data-js-args='["view-home"]' data-js-event="click"
+                href="javascript:void(0)">
+                <i class="fa-solid fa-microchip"></i> TECH<span>STORE</span>
+            </a>
+            <div class="search-box-top">
+                <input id="top-search-input" placeholder="Tìm kiếm linh kiện (bàn phím, chuột, tai nghe...)..."
+                    type="text" />
+                <button data-js-action="executeQuickSearch" data-js-args="[]" data-js-event="click" type="button"><i
+                        class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <div class="nav-actions">
+                <div class="u-style-fab19c78" id="auth-links">
+                    <!-- Nút đăng nhập/đăng ký hoặc thông tin user sẽ render động -->
+                </div>
+                <button data-js-action="handleCartClick" data-js-args="[]" data-js-event="click">
+                    <i class="fa-solid fa-cart-shopping"></i> Giỏ hàng
+                    <span class="cart-badge" id="cart-counter">0</span>
+                </button>
+                <a class="u-style-5cde1b2d" data-js-action="navigateTo" data-js-args='["view-admin-login"]'
+                    data-js-event="click" href="javascript:void(0)">
+                    <i class="fa-solid fa-lock"></i> Kênh Quản Trị
+                </a>
+            </div>
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="view-section active" id="view-home">
+            <!-- Bộ lọc tìm kiếm nâng cao (Tên + Phân loại + Khoảng giá) -->
+            <div class="filter-panel">
+                <div class="form-group">
+                    <label><i class="fa-solid fa-search"></i> Từ khóa sản phẩm</label>
+                    <input class="form-control" id="filter-keyword" placeholder="Tên sản phẩm linh kiện..."
+                        type="text" />
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-list"></i> Loại sản phẩm</label>
+                    <select class="form-select" id="filter-category">
+                        <option value="">-- Tất cả phân loại --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-dollar-sign"></i> Khoảng giá</label>
+                    <select class="form-select" id="filter-price-range">
+                        <option value="all">Tất cả mức giá</option>
+                        <option value="under-500">Dưới 500.000đ</option>
+                        <option value="500-1500">500.000đ - 1.500.000đ</option>
+                        <option value="over-1500">Trên 1.500.000đ</option>
+                    </select>
+                </div>
+                <div>
+                    <button class="btn btn-primary" data-js-action="applyAdvancedFilter" data-js-args="[]"
+                        data-js-event="click"><i class="fa-solid fa-filter"></i> Lọc Nâng Cao</button>
+                    <button class="btn btn-secondary" data-js-action="resetFilter" data-js-args="[]"
+                        data-js-event="click"><i class="fa-solid fa-rotate-left"></i> Đặt
+                        lại</button>
+                </div>
+            </div>
+            <!-- Danh sách sản phẩm -->
+            <div class="product-grid" id="product-container"></div>
+            <!-- Phân trang -->
+            <div class="pagination-bar" id="product-pagination"></div>
+        </div>
+        <div class="view-section" id="view-product-detail">
+            <button class="btn btn-secondary btn-sm" data-js-action="navigateTo" data-js-args='["view-home"]'
+                data-js-event="click"><i class="fa-solid fa-arrow-left"></i> Quay lại danh sách</button>
+            <div class="index-style-4f90709d" id="detail-container">
+                <!-- Render bằng JS -->
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>Đồ án cuối kỳ Học phần: Lập trình web và ứng dụng - Clickable Prototype Website</p>
+        <p class="u-style-a3452ca1">Hỗ trợ chấm Local Offline trên Google Chrome / Firefox.</p>
+    </footer>
+    <script src="scripts/app.js"></script>
+</body>
+
+</html>

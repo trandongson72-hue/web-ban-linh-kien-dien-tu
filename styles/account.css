@@ -1,0 +1,221 @@
+/* CSS riêng cho trang account.html. Được tách độc lập, không import main.css. */
+
+/* Header & Navigation */
+
+/* Container layout */
+
+/* Views */
+
+/* Search & Filter section */
+
+.filter-panel{
+      background: #fff;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px solid var(--gray-border);
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr auto;
+      gap: 12px;
+      align-items: end;
+    }
+
+/* Product Grid */
+
+.product-grid{
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 18px;
+    }
+
+.product-card{
+      background: #fff;
+      border: 1px solid var(--gray-border);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+.product-card:hover{
+      transform: translateY(-4px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+    }
+
+.product-thumb{
+      height: 180px;
+      background: #eaeff5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+.product-thumb img{
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+    }
+
+.product-body{
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+.product-category{
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+.product-title{
+      font-size: 15px;
+      font-weight: 600;
+      margin: 6px 0;
+      color: #212529;
+      cursor: pointer;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 40px;
+    }
+
+.product-title:hover{ color: var(--primary-color); }
+
+.product-price{
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--danger-color);
+      margin-bottom: 12px;
+    }
+
+.product-actions{
+      margin-top: auto;
+      display: flex;
+      gap: 8px;
+    }
+
+/* Pagination */
+
+.pagination-bar{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      margin-top: 24px;
+    }
+
+.page-btn{
+      padding: 6px 12px;
+      border: 1px solid var(--gray-border);
+      background: #fff;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+.page-btn.active{
+      background: var(--primary-color);
+      color: #fff;
+      border-color: var(--primary-color);
+    }
+
+/* Modal / Popups */
+
+/* Tables */
+
+/* Admin Layout */
+
+.admin-wrapper{
+      display: flex;
+      gap: 20px;
+      min-height: calc(100vh - 120px);
+    }
+
+.admin-sidebar{
+      width: var(--sidebar-width);
+      background: #1f2937;
+      border-radius: 8px;
+      padding: 16px 0;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+.admin-menu{
+      list-style: none;
+    }
+
+.admin-menu li a{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      color: #9ca3af;
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+.admin-menu li a:hover, .admin-menu li a.active{
+      color: #fff;
+      background: #374151;
+      border-left: 4px solid var(--primary-color);
+    }
+
+.admin-content{
+      flex: 1;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid var(--gray-border);
+    }
+
+/* Badges */
+
+/* Cart layout */
+
+.cart-summary{
+      background: #fff;
+      border: 1px solid var(--gray-border);
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 16px;
+    }
+
+/* Footer */
+
+/* Các style inline riêng của trang đã chuyển thành class. */
+
+.account-style-193ae3ff {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--gray-border);
+    max-width: 500px;
+    margin-top: 16px;
+}
+
+.account-style-436583df {
+    margin-bottom: 14px;
+}
+
+.account-style-74122c81 {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--gray-border);
+    padding-bottom: 10px;
+}
+
+.account-style-dd7a1ff4 {
+    max-width: 420px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid var(--gray-border);
+}

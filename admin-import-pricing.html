@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Quản lý nhập hàng & giá bán - TechStore</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+        <link href="styles/common.css" rel="stylesheet" />
+        <link href="styles/admin.css" rel="stylesheet" />
+</head>
+
+<body>
+        <header id="client-header">
+                <div class="top-bar">
+                        <a class="logo" href="index.html">
+                                <i class="fa-solid fa-microchip"></i> TECH<span>STORE</span>
+                        </a>
+                        <div class="search-box-top">
+                                <input id="top-search-input"
+                                        placeholder="Tìm kiếm linh kiện (bàn phím, chuột, tai nghe...)..."
+                                        type="text" />
+                                <button data-js-action="executeQuickSearch" data-js-args="[]" data-js-event="click"
+                                        type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
+                        <div class="nav-actions">
+                                <div id="auth-links"></div>
+                                <button data-js-action="handleCartClick" data-js-args="[]" data-js-event="click">
+                                        <i class="fa-solid fa-cart-shopping"></i> Giỏ hàng
+                                        <span class="cart-badge" id="cart-counter">0</span>
+                                </button>
+                                <a href="admin.html#view-admin-dashboard">
+                                        <i class="fa-solid fa-arrow-left"></i> Trang quản trị
+                                </a>
+                        </div>
+                </div>
+        </header>
+
+        <main class="main-container">
+                <div class="admin-wrapper">
+                        <aside class="admin-sidebar">
+                                <div class="admin-style-6bc2799e">
+                                        <h4 class="admin-style-0d0cda6b"><i class="fa-solid fa-toolbox"></i> Admin
+                                                Panel</h4>
+                                        <span class="admin-style-72f06c19">Quản lý cửa hàng</span>
+                                </div>
+                                <ul class="admin-menu">
+                                        <li><a class="active" data-js-action="switchAdminTab"
+                                                        data-js-args='["import"]' data-js-event="click"
+                                                        href="javascript:void(0)" id="menu-import"><i
+                                                                class="fa-solid fa-file-import"></i> Nhập hàng</a></li>
+                                        <li><a data-js-action="switchAdminTab" data-js-args='["pricing"]'
+                                                        data-js-event="click" href="javascript:void(0)"
+                                                        id="menu-pricing"><i class="fa-solid fa-percent"></i> Quản lý
+                                                        giá bán</a></li>
+                                        <li class="admin-style-a3b4eade"><a href="admin.html#view-admin-dashboard">
+                                                        <i class="fa-solid fa-arrow-left"></i> Tất cả chức năng quản trị
+                                                </a></li>
+                                </ul>
+                        </aside>
+
+                        <div class="admin-content">
+                                <section class="admin-sub-section" id="admin-sec-import">
+                                        <div class="u-style-925271f0">
+                                                <h3><i class="fa-solid fa-file-import"></i> Quản Lý Phiếu Nhập Hàng</h3>
+                                                <button class="btn btn-primary btn-sm"
+                                                        data-js-action="openCreateImportModal" data-js-args="[]"
+                                                        data-js-event="click"><i class="fa-solid fa-plus"></i> Tạo Phiếu
+                                                        Nhập Mới</button>
+                                        </div>
+                                        <div class="u-style-cfc24e61">
+                                                <input class="form-control" data-js-action="renderImportReceipts"
+                                                        data-js-args="[]" data-js-event="input" id="search-import-input"
+                                                        placeholder="Tìm theo mã phiếu nhập..." type="text" />
+                                        </div>
+                                        <table class="custom-table">
+                                                <thead>
+                                                        <tr>
+                                                                <th>Mã phiếu</th>
+                                                                <th>Ngày nhập</th>
+                                                                <th>Tổng giá trị</th>
+                                                                <th>Tình trạng phiếu</th>
+                                                                <th>Thao tác</th>
+                                                        </tr>
+                                                </thead>
+                                                <tbody id="admin-import-table-body"></tbody>
+                                        </table>
+                                </section>
+
+                                <section class="admin-sub-section" id="admin-sec-pricing" style="display: none;">
+                                        <h3><i class="fa-solid fa-percent"></i> Quản Lý Tỉ Lệ Lợi Nhuận &amp; Giá Bán
+                                        </h3>
+                                        <p class="admin-style-3328fff6">
+                                                Công thức: <strong>Giá bán = Giá vốn * (1 + % Lợi nhuận / 100)</strong>
+                                        </p>
+                                        <table class="custom-table">
+                                                <thead>
+                                                        <tr>
+                                                                <th>Mã SP</th>
+                                                                <th>Tên sản phẩm</th>
+                                                                <th>Loại</th>
+                                                                <th>Giá vốn (nhập gần nhất)</th>
+                                                                <th>% Lợi nhuận</th>
+                                                                <th>Giá bán tự động</th>
+                                                                <th>Thao tác</th>
+                                                        </tr>
+                                                </thead>
+                                                <tbody id="admin-pricing-table-body"></tbody>
+                                        </table>
+                                </section>
+                        </div>
+                </div>
+        </main>
+
+        <div class="modal-overlay" id="modal-import">
+                <div class="modal-content admin-style-4f36d630">
+                        <div class="modal-header">
+                                <h4 id="import-modal-title">Phiếu Nhập Hàng</h4>
+                                <button class="btn btn-sm btn-secondary" data-js-action="closeModal"
+                                        data-js-args='["modal-import"]' data-js-event="click">×</button>
+                        </div>
+                        <div class="modal-body">
+                                <input id="import-id-edit" type="hidden" />
+                                <div class="admin-style-15eaf46b">
+                                        <div class="form-group">
+                                                <label>Mã phiếu nhập</label>
+                                                <input class="form-control" id="import-code-input" readonly=""
+                                                        type="text" />
+                                        </div>
+                                        <div class="form-group">
+                                                <label>Ngày nhập hàng</label>
+                                                <input class="form-control" id="import-date-input" type="date" />
+                                        </div>
+                                </div>
+                                <h5 class="admin-style-1464266a">Chi tiết sản phẩm nhập:</h5>
+                                <div class="admin-style-37344238">
+                                        <select class="form-select" id="import-add-prod-select"></select>
+                                        <input class="form-control" id="import-add-qty" min="1" placeholder="SL"
+                                                type="number" value="1" />
+                                        <input class="form-control" id="import-add-cost" min="1000"
+                                                placeholder="Giá nhập" type="number" />
+                                        <button class="btn btn-primary btn-sm" data-js-action="addItemToImport"
+                                                data-js-args="[]" data-js-event="click"><i
+                                                        class="fa-solid fa-plus"></i></button>
+                                </div>
+                                <table class="custom-table">
+                                        <thead>
+                                                <tr>
+                                                        <th>Sản phẩm</th>
+                                                        <th>SL</th>
+                                                        <th>Giá nhập</th>
+                                                        <th>Tổng</th>
+                                                        <th>Xóa</th>
+                                                </tr>
+                                        </thead>
+                                        <tbody id="import-items-tbody"></tbody>
+                                </table>
+                        </div>
+                        <div class="modal-footer">
+                                <button class="btn btn-secondary" data-js-action="closeModal"
+                                        data-js-args='["modal-import"]' data-js-event="click">Đóng</button>
+                                <button class="btn btn-primary" data-js-action="saveDraftImport" data-js-args="[]"
+                                        data-js-event="click">Lưu Tạm</button>
+                                <button class="btn btn-success" data-js-action="completeImport" data-js-args="[]"
+                                        data-js-event="click">Hoàn Thành Phiếu Nhập</button>
+                        </div>
+                </div>
+        </div>
+
+        <div class="modal-overlay" id="modal-profit">
+                <div class="modal-content admin-style-06ccf079">
+                        <div class="modal-header">
+                                <h4>Cập Nhật % Lợi Nhuận</h4>
+                                <button class="btn btn-sm btn-secondary" data-js-action="closeModal"
+                                        data-js-args='["modal-profit"]' data-js-event="click">×</button>
+                        </div>
+                        <div class="modal-body">
+                                <input id="profit-prod-id" type="hidden" />
+                                <div class="form-group u-style-560df82d">
+                                        <label>Tên sản phẩm</label>
+                                        <input class="form-control" disabled="" id="profit-prod-name" type="text" />
+                                </div>
+                                <div class="form-group">
+                                        <label>Tỉ lệ % Lợi nhuận mong muốn</label>
+                                        <input class="form-control" id="profit-rate-input" max="500" min="0" step="1"
+                                                type="number" />
+                                </div>
+                        </div>
+                        <div class="modal-footer">
+                                <button class="btn btn-secondary" data-js-action="closeModal"
+                                        data-js-args='["modal-profit"]' data-js-event="click">Hủy</button>
+                                <button class="btn btn-primary" data-js-action="saveProfitRate" data-js-args="[]"
+                                        data-js-event="click">Áp Dụng</button>
+                        </div>
+                </div>
+        </div>
+
+        <footer>
+                <p>Đồ án cuối kỳ Học phần: Lập trình web và ứng dụng - Clickable Prototype Website</p>
+                <p>Hỗ trợ chấm Local Offline trên Google Chrome / Firefox.</p>
+        </footer>
+
+        <script src="scripts/app.js"></script>
+        <script>
+                window.addEventListener("load", () => switchAdminTab("import"), { once: true });
+        </script>
+</body>
+
+</html>

@@ -1,106 +1,522 @@
 <!DOCTYPE html>
+
 <html lang="vi">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin - Điện Tử</title>
-<link rel="stylesheet" href="admin.css">
+        <meta charset="utf-8" />
+        <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+        <title>TechStore - Cửa Hàng Linh Kiện Điện Tử</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+        <link href="styles/common.css" rel="stylesheet" />
+        <link href="styles/admin.css" rel="stylesheet" />
 </head>
+
 <body>
-<header>
-  <div class="logo">DienTu Admin</div>
-  <span>Xin chào, Quản trị viên</span>
-</header>
-
-<div class="khung">
-  <nav class="menu">
-    <button class="on" data-t="don" onclick="hien('don')">📦 Đơn đặt hàng</button>
-    <button data-t="kho" onclick="hien('kho')">🏬 Tồn kho</button>
-  </nav>
-
-  <main>
-    <section id="don" class="tab on">
-      <h2>Quản lý đơn đặt hàng</h2>
-      <div class="card">
-        <div class="loc">
-          <label>Từ ngày <input type="date" id="d-tu"></label>
-          <label>Đến ngày <input type="date" id="d-den"></label>
-          <label>Tình trạng
-            <select id="d-tt">
-              <option value="">Tất cả</option>
-              <option>Mới đặt</option><option>Đã xử lý</option><option>Đã giao</option><option>Hủy</option>
-            </select>
-          </label>
-          <button class="btn" onclick="timDon()">Tìm</button>
-          <button class="btn phu" onclick="xoaLoc()">Xóa lọc</button>
+        <header id="client-header">
+                <div class="top-bar">
+                        <a class="logo" data-js-action="navigateTo" data-js-args='["view-home"]' data-js-event="click"
+                                href="javascript:void(0)">
+                                <i class="fa-solid fa-microchip"></i> TECH<span>STORE</span>
+                        </a>
+                        <div class="search-box-top">
+                                <input id="top-search-input"
+                                        placeholder="Tìm kiếm linh kiện (bàn phím, chuột, tai nghe...)..."
+                                        type="text" />
+                                <button data-js-action="executeQuickSearch" data-js-args="[]" data-js-event="click"
+                                        type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
+                        <div class="nav-actions">
+                                <div class="u-style-fab19c78" id="auth-links">
+                                        <!-- Nút đăng nhập/đăng ký hoặc thông tin user sẽ render động -->
+                                </div>
+                                <button data-js-action="handleCartClick" data-js-args="[]" data-js-event="click">
+                                        <i class="fa-solid fa-cart-shopping"></i> Giỏ hàng
+                                        <span class="cart-badge" id="cart-counter">0</span>
+                                </button>
+                                <a class="u-style-5cde1b2d" data-js-action="navigateTo"
+                                        data-js-args='["view-admin-login"]' data-js-event="click"
+                                        href="javascript:void(0)">
+                                        <i class="fa-solid fa-lock"></i> Kênh Quản Trị
+                                </a>
+                        </div>
+                </div>
+        </header>
+        <div class="main-container">
+                <div class="view-section active" id="view-admin-login">
+                        <div class="admin-style-49dfad4d">
+                                <h3 class="admin-style-f7b96734"><i class="fa-solid fa-shield-halved"></i> Đăng Nhập
+                                        Quản Trị</h3>
+                                <div class="form-group u-style-560df82d">
+                                        <label>Tài khoản Quản trị</label>
+                                        <input class="form-control" id="admin-user-input" placeholder="Mặc định: admin"
+                                                type="text" />
+                                </div>
+                                <div class="form-group admin-style-56e229ef">
+                                        <label>Mật khẩu</label>
+                                        <input class="form-control" id="admin-pass-input" placeholder="Mặc định: 123"
+                                                type="password" />
+                                </div>
+                                <button class="btn btn-primary u-style-608a14c6" data-js-action="executeAdminLogin"
+                                        data-js-args="[]" data-js-event="click">Đăng Nhập Quản Trị</button>
+                                <div class="admin-style-f68ded05">
+                                        <a class="admin-style-275cc082" data-js-action="navigateTo"
+                                                data-js-args='["view-home"]' data-js-event="click"
+                                                href="javascript:void(0)"><i class="fa-solid fa-arrow-left"></i> Quay
+                                                lại cửa hàng</a>
+                                </div>
+                        </div>
+                </div>
+                <div class="view-section" id="view-admin-dashboard">
+                        <div class="admin-wrapper">
+                                <!-- Sidebar chức năng quản trị -->
+                                <div class="admin-sidebar">
+                                        <div class="admin-style-6bc2799e">
+                                                <h4 class="admin-style-0d0cda6b"><i class="fa-solid fa-toolbox"></i>
+                                                        Admin
+                                                        Panel</h4>
+                                                <span class="admin-style-72f06c19">Quản lý cửa hàng</span>
+                                        </div>
+                                        <ul class="admin-menu">
+                                                <li><a class="active" data-js-action="switchAdminTab"
+                                                                data-js-args='["users"]' data-js-event="click"
+                                                                href="javascript:void(0)" id="menu-users"><i
+                                                                        class="fa-solid fa-users"></i> Khách hàng</a>
+                                                </li>
+                                                <li><a data-js-action="switchAdminTab" data-js-args='["categories"]'
+                                                                data-js-event="click" href="javascript:void(0)"
+                                                                id="menu-categories"><i
+                                                                        class="fa-solid fa-layer-group"></i> Loại sản
+                                                                phẩm</a></li>
+                                                <li><a data-js-action="switchAdminTab" data-js-args='["products"]'
+                                                                data-js-event="click" href="javascript:void(0)"
+                                                                id="menu-products"><i class="fa-solid fa-box-open"></i>
+                                                                Danh mục sản phẩm</a></li>
+                                                <li><a data-js-action="switchAdminTab" data-js-args='["import"]'
+                                                                data-js-event="click" href="javascript:void(0)"
+                                                                id="menu-import"><i class="fa-solid fa-file-import"></i>
+                                                                Nhập hàng</a></li>
+                                                <li><a data-js-action="switchAdminTab" data-js-args='["pricing"]'
+                                                                data-js-event="click" href="javascript:void(0)"
+                                                                id="menu-pricing"><i class="fa-solid fa-percent"></i>
+                                                                Quản lý giá bán</a></li>
+                                                <li><a data-js-action="switchAdminTab" data-js-args='["orders"]'
+                                                                data-js-event="click" href="javascript:void(0)"
+                                                                id="menu-orders"><i
+                                                                        class="fa-solid fa-truck-ramp-box"></i> Đơn đặt
+                                                                hàng</a></li>
+                                                <li><a data-js-action="switchAdminTab" data-js-args='["inventory"]'
+                                                                data-js-event="click" href="javascript:void(0)"
+                                                                id="menu-inventory"><i
+                                                                        class="fa-solid fa-warehouse"></i> Quản lý tồn
+                                                                kho</a></li>
+                                                <li class="admin-style-a3b4eade"><a class="admin-style-53481fed"
+                                                                data-js-action="adminLogout" data-js-args="[]"
+                                                                data-js-event="click" href="javascript:void(0)"><i
+                                                                        class="fa-solid fa-right-from-bracket"></i> Đăng
+                                                                xuất Admin</a></li>
+                                        </ul>
+                                </div>
+                                <!-- Nội dung các phân hệ admin -->
+                                <div class="admin-content">
+                                        <!-- 1. QUẢN LÝ NGƯỜI DÙNG / KHÁCH HÀNG -->
+                                        <div class="admin-sub-section" id="admin-sec-users">
+                                                <div class="u-style-925271f0">
+                                                        <h3><i class="fa-solid fa-users"></i> Danh Sách Khách Hàng</h3>
+                                                </div>
+                                                <table class="custom-table">
+                                                        <thead>
+                                                                <tr>
+                                                                        <th>Tên đăng nhập</th>
+                                                                        <th>Họ tên</th>
+                                                                        <th>Số điện thoại</th>
+                                                                        <th>Trạng thái</th>
+                                                                        <th>Thao tác</th>
+                                                                </tr>
+                                                        </thead>
+                                                        <tbody id="admin-user-table-body"></tbody>
+                                                </table>
+                                        </div>
+                                        <!-- 2. QUẢN LÝ LOẠI SẢN PHẨM -->
+                                        <div class="admin-sub-section u-style-0463bfe3" id="admin-sec-categories">
+                                                <div class="u-style-925271f0">
+                                                        <h3><i class="fa-solid fa-layer-group"></i> Quản Lý Loại Sản
+                                                                Phẩm</h3>
+                                                        <button class="btn btn-primary btn-sm"
+                                                                data-js-action="openCategoryModal" data-js-args="[]"
+                                                                data-js-event="click"><i class="fa-solid fa-plus"></i>
+                                                                Thêm Loại</button>
+                                                </div>
+                                                <table class="custom-table">
+                                                        <thead>
+                                                                <tr>
+                                                                        <th>Mã loại</th>
+                                                                        <th>Tên loại sản phẩm</th>
+                                                                        <th>Trạng thái</th>
+                                                                        <th>Thao tác</th>
+                                                                </tr>
+                                                        </thead>
+                                                        <tbody id="admin-category-table-body"></tbody>
+                                                </table>
+                                        </div>
+                                        <!-- 3. QUẢN LÝ DANH MỤC SẢN PHẨM -->
+                                        <div class="admin-sub-section u-style-0463bfe3" id="admin-sec-products">
+                                                <div class="u-style-925271f0">
+                                                        <h3><i class="fa-solid fa-box-open"></i> Quản Lý Danh Mục Sản
+                                                                Phẩm</h3>
+                                                        <button class="btn btn-primary btn-sm"
+                                                                data-js-action="openProductModal" data-js-args="[]"
+                                                                data-js-event="click"><i class="fa-solid fa-plus"></i>
+                                                                Thêm Sản Phẩm Mới</button>
+                                                </div>
+                                                <table class="custom-table">
+                                                        <thead>
+                                                                <tr>
+                                                                        <th>Hình ảnh</th>
+                                                                        <th>Mã SP</th>
+                                                                        <th>Tên sản phẩm</th>
+                                                                        <th>Loại</th>
+                                                                        <th>Giá bán</th>
+                                                                        <th>Trạng thái</th>
+                                                                        <th>Thao tác</th>
+                                                                </tr>
+                                                        </thead>
+                                                        <tbody id="admin-product-table-body"></tbody>
+                                                </table>
+                                        </div>
+                                        <!-- 4. QUẢN LÝ NHẬP SẢN PHẨM -->
+                                        <div class="admin-sub-section u-style-0463bfe3" id="admin-sec-import">
+                                                <div class="u-style-925271f0">
+                                                        <h3><i class="fa-solid fa-file-import"></i> Quản Lý Phiếu Nhập
+                                                                Hàng</h3>
+                                                        <button class="btn btn-primary btn-sm"
+                                                                data-js-action="openCreateImportModal" data-js-args="[]"
+                                                                data-js-event="click"><i class="fa-solid fa-plus"></i>
+                                                                Tạo Phiếu Nhập Mới</button>
+                                                </div>
+                                                <div class="u-style-cfc24e61">
+                                                        <input class="form-control"
+                                                                data-js-action="renderImportReceipts" data-js-args="[]"
+                                                                data-js-event="input" id="search-import-input"
+                                                                placeholder="Tìm theo mã phiếu nhập..." type="text" />
+                                                </div>
+                                                <table class="custom-table">
+                                                        <thead>
+                                                                <tr>
+                                                                        <th>Mã phiếu</th>
+                                                                        <th>Ngày nhập</th>
+                                                                        <th>Tổng giá trị</th>
+                                                                        <th>Tình trạng phiếu</th>
+                                                                        <th>Thao tác</th>
+                                                                </tr>
+                                                        </thead>
+                                                        <tbody id="admin-import-table-body"></tbody>
+                                                </table>
+                                        </div>
+                                        <!-- 5. QUẢN LÝ GIÁ BÁN & TỈ LỆ LỢI NHUẬN -->
+                                        <div class="admin-sub-section u-style-0463bfe3" id="admin-sec-pricing">
+                                                <h3><i class="fa-solid fa-percent"></i> Quản Lý Tỉ Lệ Lợi Nhuận &amp;
+                                                        Giá Bán</h3>
+                                                <p class="admin-style-3328fff6">
+                                                        Công thức: <strong>Giá bán = Giá vốn * (1 + % Lợi nhuận /
+                                                                100)</strong>
+                                                </p>
+                                                <table class="custom-table">
+                                                        <thead>
+                                                                <tr>
+                                                                        <th>Mã SP</th>
+                                                                        <th>Tên sản phẩm</th>
+                                                                        <th>Loại</th>
+                                                                        <th>Giá vốn (nhập gần nhất)</th>
+                                                                        <th>% Lợi nhuận</th>
+                                                                        <th>Giá bán tự động</th>
+                                                                        <th>Thao tác</th>
+                                                                </tr>
+                                                        </thead>
+                                                        <tbody id="admin-pricing-table-body"></tbody>
+                                                </table>
+                                        </div>
+                                        <!-- 6. QUẢN LÝ ĐƠN ĐẶT HÀNG -->
+                                        <div class="admin-sub-section u-style-0463bfe3" id="admin-sec-orders">
+                                                <h3><i class="fa-solid fa-truck-ramp-box"></i> Quản Lý Đơn Đặt Hàng</h3>
+                                                <!-- Bộ lọc đơn hàng: Theo khoảng thời gian và theo trạng thái -->
+                                                <div class="admin-style-e1adcfb1">
+                                                        <div>
+                                                                <label class="admin-style-389f86ab">Từ
+                                                                        ngày:</label>
+                                                                <input class="form-control" id="filter-order-from"
+                                                                        type="date" />
+                                                        </div>
+                                                        <div>
+                                                                <label class="admin-style-389f86ab">Đến
+                                                                        ngày:</label>
+                                                                <input class="form-control" id="filter-order-to"
+                                                                        type="date" />
+                                                        </div>
+                                                        <div>
+                                                                <label class="admin-style-389f86ab">Tình
+                                                                        trạng đơn:</label>
+                                                                <select class="form-select" id="filter-order-status">
+                                                                        <option value="all">-- Tất cả --</option>
+                                                                        <option value="Mới đặt">Mới đặt</option>
+                                                                        <option value="Đã xử lý">Đã xử lý</option>
+                                                                        <option value="Đã giao">Đã giao</option>
+                                                                        <option value="Hủy">Hủy</option>
+                                                                </select>
+                                                        </div>
+                                                        <div class="admin-style-387e0d35">
+                                                                <button class="btn btn-primary"
+                                                                        data-js-action="renderAdminOrders"
+                                                                        data-js-args="[]" data-js-event="click"><i
+                                                                                class="fa-solid fa-filter"></i> Lọc
+                                                                        đơn</button>
+                                                        </div>
+                                                </div>
+                                                <table class="custom-table">
+                                                        <thead>
+                                                                <tr>
+                                                                        <th>Mã đơn</th>
+                                                                        <th>Ngày đặt</th>
+                                                                        <th>Khách hàng</th>
+                                                                        <th>Tổng tiền</th>
+                                                                        <th>Tình trạng</th>
+                                                                        <th>Thao tác</th>
+                                                                </tr>
+                                                        </thead>
+                                                        <tbody id="admin-order-table-body"></tbody>
+                                                </table>
+                                        </div>
+                                        <!-- 7. QUẢN LÝ SỐ LƯỢNG TỒN KHO & CẢNH BÁO -->
+                                        <div class="admin-sub-section u-style-0463bfe3" id="admin-sec-inventory">
+                                                <h3><i class="fa-solid fa-warehouse"></i> Quản Lý Tồn Kho &amp; Nhập -
+                                                        Xuất - Tồn</h3>
+                                                <div class="admin-style-9119575a">
+                                                        <div>
+                                                                <label class="admin-style-389f86ab">Loại
+                                                                        sản phẩm:</label>
+                                                                <select class="form-select"
+                                                                        data-js-action="renderInventoryReport"
+                                                                        data-js-args="[]" data-js-event="change"
+                                                                        id="inv-filter-cat">
+                                                                        <option value="all">-- Tất cả loại linh kiện --
+                                                                        </option>
+                                                                </select>
+                                                        </div>
+                                                        <div>
+                                                                <label class="admin-style-389f86ab">Từ
+                                                                        ngày:</label>
+                                                                <input class="form-control"
+                                                                        data-js-action="renderInventoryReport"
+                                                                        data-js-args="[]" data-js-event="change"
+                                                                        id="inv-date-from" type="date" />
+                                                        </div>
+                                                        <div>
+                                                                <label class="admin-style-389f86ab">Đến
+                                                                        ngày:</label>
+                                                                <input class="form-control"
+                                                                        data-js-action="renderInventoryReport"
+                                                                        data-js-args="[]" data-js-event="change"
+                                                                        id="inv-date-to" type="date" />
+                                                        </div>
+                                                        <div class="admin-style-387e0d35">
+                                                                <button class="btn btn-secondary"
+                                                                        data-js-action="renderInventoryReport"
+                                                                        data-js-args="[]" data-js-event="click"><i
+                                                                                class="fa-solid fa-arrows-rotate"></i>
+                                                                        Xem báo cáo</button>
+                                                        </div>
+                                                </div>
+                                                <table class="custom-table">
+                                                        <thead>
+                                                                <tr>
+                                                                        <th>Mã SP</th>
+                                                                        <th>Tên linh kiện</th>
+                                                                        <th>Loại</th>
+                                                                        <th>Tổng Nhập</th>
+                                                                        <th>Tổng Xuất</th>
+                                                                        <th>Tồn Hiện Tại</th>
+                                                                        <th>Cảnh Báo Hết Hàng</th>
+                                                                </tr>
+                                                        </thead>
+                                                        <tbody id="inventory-table-body"></tbody>
+                                                </table>
+                                        </div>
+                                </div>
+                        </div>
+                </div>
         </div>
-        <table>
-          <thead><tr><th>Mã đơn</th><th>Ngày đặt</th><th>Khách hàng</th><th>Tổng tiền</th><th>Tình trạng</th><th></th></tr></thead>
-          <tbody id="d-body"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section id="kho" class="tab">
-      <h2>Quản lý tồn kho</h2>
-
-      <div class="card">
-        <h3>⚠️ Cảnh báo sắp hết hàng (tồn hiện tại)</h3>
-        <div class="loc">
-          <label>Cảnh báo khi tồn ≤ <input type="number" id="k-nguong" value="5" min="0" style="width:90px"></label>
-          <button class="btn" onclick="canhBao()">Cập nhật</button>
+        <div class="modal-overlay" id="modal-category">
+                <div class="modal-content admin-style-865a9687">
+                        <div class="modal-header">
+                                <h4 id="cat-modal-title">Loại Sản Phẩm</h4>
+                                <button class="btn btn-sm btn-secondary" data-js-action="closeModal"
+                                        data-js-args='["modal-category"]' data-js-event="click">×</button>
+                        </div>
+                        <div class="modal-body">
+                                <input id="cat-id-edit" type="hidden" />
+                                <div class="form-group u-style-560df82d">
+                                        <label>Mã loại (vd: ban-phim, chuot)</label>
+                                        <input class="form-control" id="cat-code-input" type="text" />
+                                </div>
+                                <div class="form-group">
+                                        <label>Tên loại sản phẩm</label>
+                                        <input class="form-control" id="cat-name-input" type="text" />
+                                </div>
+                        </div>
+                        <div class="modal-footer">
+                                <button class="btn btn-secondary" data-js-action="closeModal"
+                                        data-js-args='["modal-category"]' data-js-event="click">Hủy</button>
+                                <button class="btn btn-primary" data-js-action="saveCategory" data-js-args="[]"
+                                        data-js-event="click">Lưu Loại</button>
+                        </div>
+                </div>
         </div>
-        <div id="k-canhbao"></div>
-      </div>
-
-      <div class="card">
-        <h3>Tra cứu tồn kho theo loại tại một thời điểm</h3>
-        <div class="loc">
-          <label>Tồn đến hết ngày <input type="date" id="k-ngay"></label>
-          <label>Loại sản phẩm <select id="k-loai"></select></label>
-          <button class="btn" onclick="timTon()">Tra cứu</button>
+        <div class="modal-overlay" id="modal-product">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <h4 id="prod-modal-title">Thông Tin Sản Phẩm</h4>
+                                <button class="btn btn-sm btn-secondary" data-js-action="closeModal"
+                                        data-js-args='["modal-product"]' data-js-event="click">×</button>
+                        </div>
+                        <div class="modal-body">
+                                <input id="prod-id-edit" type="hidden" />
+                                <div class="admin-style-d7a0a53e">
+                                        <div class="form-group">
+                                                <label>Mã sản phẩm</label>
+                                                <input class="form-control" id="prod-code-input" type="text" />
+                                        </div>
+                                        <div class="form-group">
+                                                <label>Loại sản phẩm</label>
+                                                <select class="form-select" id="prod-cat-select"></select>
+                                        </div>
+                                </div>
+                                <div class="form-group u-style-560df82d">
+                                        <label>Tên sản phẩm</label>
+                                        <input class="form-control" id="prod-name-input" type="text" />
+                                </div>
+                                <div class="admin-style-d7a0a53e">
+                                        <div class="form-group">
+                                                <label>Giá bán (VNĐ)</label>
+                                                <input class="form-control" id="prod-price-input" type="number" />
+                                        </div>
+                                        <div class="form-group">
+                                                <label>Đường dẫn hình ảnh (URL / Local relative)</label>
+                                                <input class="form-control" id="prod-img-input"
+                                                        placeholder="static/images/ten_anh.jpg" type="text" />
+                                        </div>
+                                </div>
+                                <div class="form-group">
+                                        <label>Mô tả chi tiết sản phẩm</label>
+                                        <textarea class="form-control" id="prod-desc-input" rows="3"></textarea>
+                                </div>
+                        </div>
+                        <div class="modal-footer">
+                                <button class="btn btn-secondary" data-js-action="closeModal"
+                                        data-js-args='["modal-product"]' data-js-event="click">Hủy</button>
+                                <button class="btn btn-primary" data-js-action="saveProduct" data-js-args="[]"
+                                        data-js-event="click">Lưu Sản Phẩm</button>
+                        </div>
+                </div>
         </div>
-        <table>
-          <thead><tr><th>Mã</th><th>Tên sản phẩm</th><th>Loại</th><th>Đã nhập</th><th>Đã xuất</th><th>Tồn</th></tr></thead>
-          <tbody id="k-body"></tbody>
-        </table>
-      </div>
-
-      <div class="card">
-        <h3>Thống kê nhập – xuất – tồn của một sản phẩm</h3>
-        <div class="loc">
-          <label>Sản phẩm <select id="n-sp"></select></label>
-          <label>Từ ngày <input type="date" id="n-tu"></label>
-          <label>Đến ngày <input type="date" id="n-den"></label>
-          <button class="btn" onclick="timNXT()">Thống kê</button>
+        <div class="modal-overlay" id="modal-import">
+                <div class="modal-content admin-style-4f36d630">
+                        <div class="modal-header">
+                                <h4 id="import-modal-title">Phiếu Nhập Hàng</h4>
+                                <button class="btn btn-sm btn-secondary" data-js-action="closeModal"
+                                        data-js-args='["modal-import"]' data-js-event="click">×</button>
+                        </div>
+                        <div class="modal-body">
+                                <input id="import-id-edit" type="hidden" />
+                                <div class="admin-style-15eaf46b">
+                                        <div class="form-group">
+                                                <label>Mã phiếu nhập</label>
+                                                <input class="form-control" id="import-code-input" readonly=""
+                                                        type="text" />
+                                        </div>
+                                        <div class="form-group">
+                                                <label>Ngày nhập hàng</label>
+                                                <input class="form-control" id="import-date-input" type="date" />
+                                        </div>
+                                </div>
+                                <h5 class="admin-style-1464266a">Chi tiết sản phẩm nhập:</h5>
+                                <div class="admin-style-37344238">
+                                        <select class="form-select" id="import-add-prod-select"></select>
+                                        <input class="form-control" id="import-add-qty" min="1" placeholder="SL"
+                                                type="number" value="1" />
+                                        <input class="form-control" id="import-add-cost" min="1000"
+                                                placeholder="Giá nhập" type="number" />
+                                        <button class="btn btn-primary btn-sm" data-js-action="addItemToImport"
+                                                data-js-args="[]" data-js-event="click"><i
+                                                        class="fa-solid fa-plus"></i></button>
+                                </div>
+                                <table class="custom-table">
+                                        <thead>
+                                                <tr>
+                                                        <th>Sản phẩm</th>
+                                                        <th>SL</th>
+                                                        <th>Giá nhập</th>
+                                                        <th>Tổng</th>
+                                                        <th>Xóa</th>
+                                                </tr>
+                                        </thead>
+                                        <tbody id="import-items-tbody"></tbody>
+                                </table>
+                        </div>
+                        <div class="modal-footer">
+                                <button class="btn btn-secondary" data-js-action="closeModal"
+                                        data-js-args='["modal-import"]' data-js-event="click">Đóng</button>
+                                <button class="btn btn-primary" data-js-action="saveDraftImport" data-js-args="[]"
+                                        data-js-event="click">Lưu Tạm</button>
+                                <button class="btn btn-success" data-js-action="completeImport" data-js-args="[]"
+                                        data-js-event="click">Hoàn Thành Phiếu Nhập</button>
+                        </div>
+                </div>
         </div>
-        <table>
-          <thead><tr><th>Sản phẩm</th><th>Tồn đầu kỳ</th><th>Nhập trong kỳ</th><th>Xuất trong kỳ</th><th>Tồn cuối kỳ</th></tr></thead>
-          <tbody id="n-body"><tr><td colspan="5">Chọn sản phẩm và khoảng thời gian rồi bấm Thống kê</td></tr></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
-</div>
-
-<div id="modal" class="modal">
-  <div class="hop">
-    <h3 id="m-title"></h3>
-    <table>
-      <thead><tr><th>Mã</th><th>Sản phẩm</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead>
-      <tbody id="m-body"></tbody>
-    </table>
-    <div class="loc" style="margin-top:14px">
-      <label>Cập nhật tình trạng
-        <select id="m-tt"><option>Mới đặt</option><option>Đã xử lý</option><option>Đã giao</option><option>Hủy</option></select>
-      </label>
-      <button class="btn" id="m-luu" onclick="capNhat()">Cập nhật</button>
-      <button class="btn phu" onclick="dong()">Đóng</button>
-    </div>
-    <p id="m-ghi" class="ghi"></p>
-  </div>
-</div>
-
-<script src="admin.js"></script>
+        <div class="modal-overlay" id="modal-profit">
+                <div class="modal-content admin-style-06ccf079">
+                        <div class="modal-header">
+                                <h4>Cập Nhật % Lợi Nhuận</h4>
+                                <button class="btn btn-sm btn-secondary" data-js-action="closeModal"
+                                        data-js-args='["modal-profit"]' data-js-event="click">×</button>
+                        </div>
+                        <div class="modal-body">
+                                <input id="profit-prod-id" type="hidden" />
+                                <div class="form-group u-style-560df82d">
+                                        <label>Tên sản phẩm</label>
+                                        <input class="form-control" disabled="" id="profit-prod-name" type="text" />
+                                </div>
+                                <div class="form-group">
+                                        <label>Tỉ lệ % Lợi nhuận mong muốn</label>
+                                        <input class="form-control" id="profit-rate-input" max="500" min="0" step="1"
+                                                type="number" />
+                                </div>
+                        </div>
+                        <div class="modal-footer">
+                                <button class="btn btn-secondary" data-js-action="closeModal"
+                                        data-js-args='["modal-profit"]' data-js-event="click">Hủy</button>
+                                <button class="btn btn-primary" data-js-action="saveProfitRate" data-js-args="[]"
+                                        data-js-event="click">Áp Dụng</button>
+                        </div>
+                </div>
+        </div>
+        <div class="modal-overlay" id="modal-admin-order-detail">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <h4>Chi Tiết &amp; Cập Nhật Đơn Hàng</h4>
+                                <button class="btn btn-sm btn-secondary" data-js-action="closeModal"
+                                        data-js-args='["modal-admin-order-detail"]' data-js-event="click">×</button>
+                        </div>
+                        <div class="modal-body" id="admin-order-detail-content"></div>
+                        <div class="modal-footer">
+                                <button class="btn btn-secondary" data-js-action="closeModal"
+                                        data-js-args='["modal-admin-order-detail"]' data-js-event="click">Đóng</button>
+                        </div>
+                </div>
+        </div>
+        <footer>
+                <p>Đồ án cuối kỳ Học phần: Lập trình web và ứng dụng - Clickable Prototype Website</p>
+                <p class="u-style-a3452ca1">Hỗ trợ chấm Local Offline trên Google Chrome / Firefox.</p>
+        </footer>
+        <script src="scripts/app.js"></script>
 </body>
+
 </html>

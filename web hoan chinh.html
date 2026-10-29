@@ -1287,6 +1287,10 @@
     function setCategories(data) { localStorage.setItem("app_categories", JSON.stringify(data)); }
     function getProducts() { return JSON.parse(localStorage.getItem("app_products")) || []; }
     function setProducts(data) { localStorage.setItem("app_products", JSON.stringify(data)); }
+    function getVisibleProducts() {
+      const hiddenCategoryIds = getCategories().filter(c => c.isHidden).map(c => c.id);
+      return getProducts().filter(p => !p.isHidden && !hiddenCategoryIds.includes(p.categoryId));
+    }
     function getUsers() { return JSON.parse(localStorage.getItem("app_users")) || []; }
     function setUsers(data) { localStorage.setItem("app_users", JSON.stringify(data)); }
     function getOrders() { return JSON.parse(localStorage.getItem("app_orders")) || []; }
@@ -1388,7 +1392,7 @@
       const catId = document.getElementById("filter-category").value;
       const priceRange = document.getElementById("filter-price-range").value;
       const categories = getCategories();
-      const prods = getProducts().filter(p => !p.isHidden);
+      const prods = getVisibleProducts();
 
       filteredProductList = prods.filter(p => {
         const category = categories.find(c => c.id === p.categoryId);
@@ -1418,14 +1422,14 @@
       document.getElementById("filter-category").value = "";
       document.getElementById("filter-price-range").value = "all";
       document.getElementById("top-search-input").value = "";
-      filteredProductList = getProducts().filter(p => !p.isHidden);
+      filteredProductList = getVisibleProducts();
       currentPage = 1;
       renderProducts();
     }
 
     function renderProducts() {
       if (filteredProductList === null) {
-        filteredProductList = getProducts().filter(p => !p.isHidden);
+        filteredProductList = getVisibleProducts();
       }
 
       const totalItems = filteredProductList.length;
@@ -1485,6 +1489,11 @@
       const prod = getProducts().find(p => p.id === prodId);
       if (!prod) return;
       const cat = getCategories().find(c => c.id === prod.categoryId);
+      // Không cho xem sản phẩm đã ẩn hoặc thuộc loại đang ẩn
+      if (prod.isHidden || (cat && cat.isHidden)) {
+        alert("Sản phẩm này hiện không khả dụng.");
+        return;
+      }
 
       const detailContainer = document.getElementById("detail-container");
       detailContainer.innerHTML = `
@@ -2085,9 +2094,19 @@
     }
 
     function deleteCategory(id) {
-      if (confirm("Bạn có chắc chắn muốn xóa loại sản phẩm này?")) {
-        let cats = getCategories().filter(c => c.id !== id);
-        setCategories(cats);
+      const cats = getCategories();
+      const cat = cats.find(c => c.id === id);
+      if (!cat) return;
+
+      // Chặn xóa khi vẫn còn sản phẩm thuộc loại này (kể cả sản phẩm đang ẩn)
+      const productCount = getProducts().filter(p => p.categoryId === id).length;
+      if (productCount > 0) {
+        alert(`Không thể xóa loại "${cat.name}" vì đang có ${productCount} sản phẩm thuộc loại này.\nHãy chuyển sản phẩm sang loại khác hoặc xóa sản phẩm trước.`);
+        return;
+      }
+
+      if (confirm(`Bạn có chắc chắn muốn xóa loại "${cat.name}"?`)) {
+        setCategories(cats.filter(c => c.id !== id));
         renderAdminCategories();
       }
     }

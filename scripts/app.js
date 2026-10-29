@@ -17,7 +17,7 @@
         costPrice: 850000,
         profitRate: 35,
         price: 1150000,
-        image: "static/images/Bàn phím Akko 3084.jpg",
+        image: "static/images/keyboard-akko.jpg",
         description: "Bàn phím cơ 84 phím nhỏ gọn, kết nối Type-C, switch Akko chất lượng cao, gõ êm.",
         isHidden: false
       },
@@ -29,7 +29,7 @@
         costPrice: 420000,
         profitRate: 30,
         price: 550000,
-        image: "static/images/Bàn phím Dareu EK87.png",
+        image: "static/images/keyboard-dareu.jpg",
         description: "Thiết kế Tenkeyless 87 phím, đèn LED Rainbow rực rỡ, switch D-Switch bền bỉ.",
         isHidden: false
       },
@@ -41,7 +41,7 @@
         costPrice: 1400000,
         profitRate: 35,
         price: 1890000,
-        image: "static/images/Bàn phím Keychron K2.webp",
+        image: "static/images/keyboard-keychron.jpg",
         description: "Hỗ trợ Bluetooth 5.1 và có dây, tương thích hoàn hảo Mac và Windows, pin 4000mAh.",
         isHidden: false
       },
@@ -53,7 +53,7 @@
         costPrice: 310000,
         profitRate: 35,
         price: 420000,
-        image: "static/images/Chuột Logitech G102.jpg",
+        image: "static/images/mouse-logitech-g102.jpg",
         description: "Cảm biến 8000 DPI chuẩn gaming, hệ thống LED RGB Lightsync 16.8 triệu màu.",
         isHidden: false
       },
@@ -65,7 +65,7 @@
         costPrice: 620000,
         profitRate: 25,
         price: 775000,
-        image: "static/images/Chuột Logitech G304 Wireless.jpg",
+        image: "static/images/mouse-logitech-g304.jpg",
         description: "Công nghệ không dây Lightspeed độ trễ 1ms, cảm biến HERO tiết kiệm pin lên đến 250 giờ.",
         isHidden: false
       },
@@ -77,7 +77,7 @@
         costPrice: 350000,
         profitRate: 30,
         price: 455000,
-        image: "static/images/Chuột Razer DeathAdder.jpg",
+        image: "static/images/mouse-razer-deathadder.jpg",
         description: "Kiểu dáng công thái học huyền thoại, cảm biến quang học 6400 DPI, 5 nút lập trình.",
         isHidden: false
       },
@@ -89,7 +89,7 @@
         costPrice: 400000,
         profitRate: 25,
         price: 500000,
-        image: "static/images/Tai nghe Dareu EH722.jpg",
+        image: "static/images/headset-dareu.jpg",
         description: "Giả lập âm thanh vòm 7.1 trung thực, đệm tai êm ái, micro khử ồn đàm thoại rõ ràng.",
         isHidden: false
       },
@@ -101,7 +101,7 @@
         costPrice: 85000,
         profitRate: 40,
         price: 120000,
-        image: "static/images/USB Kingston 32GB.jpg",
+        image: "static/images/usb-kingston.jpg",
         description: "Chuẩn USB 3.2 Gen 1 tốc độ cao, thiết kế nắp xoay kim loại bền đẹp.",
         isHidden: false
       }
@@ -126,6 +126,17 @@
       }
     ];
 
+    const LEGACY_PRODUCT_IMAGE_PATHS = {
+      "static/images/Bàn phím Akko 3084.jpg": "static/images/keyboard-akko.jpg",
+      "static/images/Bàn phím Dareu EK87.png": "static/images/keyboard-dareu.jpg",
+      "static/images/Bàn phím Keychron K2.webp": "static/images/keyboard-keychron.jpg",
+      "static/images/Chuột Logitech G102.jpg": "static/images/mouse-logitech-g102.jpg",
+      "static/images/Chuột Logitech G304 Wireless.jpg": "static/images/mouse-logitech-g304.jpg",
+      "static/images/Chuột Razer DeathAdder.jpg": "static/images/mouse-razer-deathadder.jpg",
+      "static/images/Tai nghe Dareu EH722.jpg": "static/images/headset-dareu.jpg",
+      "static/images/USB Kingston 32GB.jpg": "static/images/usb-kingston.jpg"
+    };
+
     // Khởi tạo Storage nếu chưa có
     function initDataStorage() {
       if (!localStorage.getItem("app_categories")) {
@@ -133,6 +144,18 @@
       }
       if (!localStorage.getItem("app_products")) {
         localStorage.setItem("app_products", JSON.stringify(DEFAULT_PRODUCTS));
+      }
+      const products = JSON.parse(localStorage.getItem("app_products")) || [];
+      let productImagesUpdated = false;
+      products.forEach(product => {
+        const replacement = LEGACY_PRODUCT_IMAGE_PATHS[product.image];
+        if (replacement) {
+          product.image = replacement;
+          productImagesUpdated = true;
+        }
+      });
+      if (productImagesUpdated) {
+        localStorage.setItem("app_products", JSON.stringify(products));
       }
       if (!localStorage.getItem("app_users")) {
         localStorage.setItem("app_users", JSON.stringify(DEFAULT_USERS));
@@ -266,7 +289,7 @@
        ======================================================== */
     let currentPage = 1;
     const itemsPerPage = 4; // Để test phân trang dễ dàng
-    let filteredProductList = [];
+    let filteredProductList = null;
 
     function loadFilterCategories() {
       const cats = getCategories().filter(c => !c.isHidden);
@@ -294,22 +317,39 @@
       applyAdvancedFilter();
     }
 
+    function normalizeSearchText(value) {
+      return String(value ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .toLowerCase()
+        .trim();
+    }
+
     function applyAdvancedFilter() {
-      const keyword = document.getElementById("filter-keyword").value.toLowerCase().trim();
+      const keyword = normalizeSearchText(document.getElementById("filter-keyword").value);
       const catId = document.getElementById("filter-category").value;
       const priceRange = document.getElementById("filter-price-range").value;
-
+      const categories = getCategories();
       const prods = getProducts().filter(p => !p.isHidden);
 
       filteredProductList = prods.filter(p => {
-        const matchName = p.name.toLowerCase().includes(keyword);
-        const matchCat = catId ? p.categoryId === catId : true;
-        let matchPrice = true;
-        if (priceRange === 'under-500') matchPrice = p.price < 500000;
-        else if (priceRange === '500-1500') matchPrice = p.price >= 500000 && p.price <= 1500000;
-        else if (priceRange === 'over-1500') matchPrice = p.price > 1500000;
+        const category = categories.find(c => c.id === p.categoryId);
+        const searchableText = normalizeSearchText([
+          p.name,
+          p.code,
+          p.description,
+          category ? category.name : ""
+        ].join(" "));
+        const matchKeyword = !keyword || searchableText.includes(keyword);
+        const matchCat = !catId || String(p.categoryId) === catId;
+        const price = Number(p.price);
+        let matchPrice = priceRange === "all" || !priceRange;
+        if (priceRange === "under-500") matchPrice = Number.isFinite(price) && price < 500000;
+        else if (priceRange === "500-1500") matchPrice = Number.isFinite(price) && price >= 500000 && price <= 1500000;
+        else if (priceRange === "over-1500") matchPrice = Number.isFinite(price) && price > 1500000;
 
-        return matchName && matchCat && matchPrice;
+        return matchKeyword && matchCat && matchPrice;
       });
 
       currentPage = 1;
@@ -327,7 +367,7 @@
     }
 
     function renderProducts() {
-      if (!filteredProductList || filteredProductList.length === 0) {
+      if (filteredProductList === null) {
         filteredProductList = getProducts().filter(p => !p.isHidden);
       }
 
@@ -350,7 +390,7 @@
           container.innerHTML += `
             <div class="product-card">
               <div class="product-thumb" data-js-action="viewProductDetail" data-js-args='["${prod.id}"]' data-js-event="click" style="cursor: pointer;">
-                <img src="${prod.image}" alt="${prod.name}" onerror="this.onerror=null;this.src='https://via.placeholder.com/200x150?text=Linh+Kien';">
+                <img src="${prod.image}" alt="${prod.name}" onerror="this.onerror=null;this.src='static/images/default-product.svg';">
               </div>
               <div class="product-body">
                 <span class="product-category">${cat ? cat.name : 'Linh kiện'}</span>
@@ -392,7 +432,7 @@
       const detailContainer = document.getElementById("detail-container");
       detailContainer.innerHTML = `
         <div style="text-align: center; background: #f8f9fa; padding: 20px; border-radius: 6px;">
-          <img src="${prod.image}" alt="${prod.name}" style="max-width: 100%; max-height: 350px; object-fit: contain;" onerror="this.onerror=null;this.src='https://via.placeholder.com/350x250?text=Linh+Kien';">
+          <img src="${prod.image}" alt="${prod.name}" style="max-width: 100%; max-height: 350px; object-fit: contain;" onerror="this.onerror=null;this.src='static/images/default-product.svg';">
         </div>
         <div>
           <span class="badge badge-info">${cat ? cat.name : 'Linh kiện'}</span>
@@ -493,7 +533,7 @@
             <tr>
               <td>
                 <div style="display: flex; align-items: center; gap: 10px;">
-                  <img src="${item.image}" width="45" height="45" style="object-fit: contain; background: #eee; border-radius: 4px;" onerror="this.onerror=null;this.src='https://via.placeholder.com/45';">
+                  <img src="${item.image}" width="45" height="45" style="object-fit: contain; background: #eee; border-radius: 4px;" onerror="this.onerror=null;this.src='static/images/default-product.svg';">
                   <strong>${item.name}</strong>
                 </div>
               </td>
@@ -1006,7 +1046,7 @@
         const cat = cats.find(c => c.id === p.categoryId);
         tbody.innerHTML += `
           <tr>
-            <td><img src="${p.image}" width="40" height="40" style="object-fit: contain; background: #eee; border-radius: 4px;" onerror="this.onerror=null;this.src='https://via.placeholder.com/40';"></td>
+            <td><img src="${p.image}" width="40" height="40" style="object-fit: contain; background: #eee; border-radius: 4px;" onerror="this.onerror=null;this.src='static/images/default-product.svg';"></td>
             <td><code>${p.code}</code></td>
             <td><strong>${p.name}</strong></td>
             <td>${cat ? cat.name : 'N/A'}</td>
@@ -1057,7 +1097,7 @@
       const catId = document.getElementById("prod-cat-select").value;
       const name = document.getElementById("prod-name-input").value.trim();
       const price = parseFloat(document.getElementById("prod-price-input").value) || 0;
-      const img = document.getElementById("prod-img-input").value.trim() || 'static/images/default.jpg';
+      const img = document.getElementById("prod-img-input").value.trim() || 'static/images/default-product.svg';
       const desc = document.getElementById("prod-desc-input").value.trim();
 
       if (!code || !name || price <= 0) {

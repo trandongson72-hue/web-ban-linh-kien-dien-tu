@@ -1,0 +1,31 @@
+Product image sources
+
+These illustrative product photos are downloaded from Unsplash and stored locally
+so the storefront does not need to fetch them at runtime. Unsplash License:
+https://unsplash.com/license
+
+keyboard-akko.jpg
+https://images.unsplash.com/photo-1595225476474-87563907a212
+
+keyboard-dareu.jpg
+https://images.unsplash.com/photo-1587829741301-dc798b83add3
+
+keyboard-keychron.jpg
+https://images.unsplash.com/photo-1541140532154-b024d705b90a
+
+mouse-logitech-g102.jpg
+https://images.unsplash.com/photo-1527814050087-3793815479db
+
+mouse-logitech-g304.jpg
+https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7
+
+mouse-razer-deathadder.jpg
+https://images.unsplash.com/photo-1629429408209-1f912961dbd8
+
+headset-dareu.jpg
+https://images.unsplash.com/photo-1625948515291-69613efd103f
+
+usb-kingston.jpg
+https://commons.wikimedia.org/wiki/File:USB_flash_drive_made_by_LG_CNS_20050109.jpg
+Photograph by Jurema Oliveira, CC BY-SA 3.0:
+https://creativecommons.org/licenses/by-sa/3.0/

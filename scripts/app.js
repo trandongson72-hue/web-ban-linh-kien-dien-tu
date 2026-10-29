@@ -912,6 +912,7 @@
       else if (tabName === 'inventory') {
         loadInventoryFilterCats();
         renderInventoryReport();
+        renderNxtReport();
       }
     }
 
@@ -1491,27 +1492,57 @@
       const select = document.getElementById("inv-filter-cat");
       select.innerHTML = `<option value="all">-- Tất cả loại linh kiện --</option>`;
       getCategories().forEach(c => select.innerHTML += `<option value="${c.id}">${c.name}</option>`);
+
+      const nxtSelect = document.getElementById("nxt-product");
+      if (nxtSelect) {
+        nxtSelect.innerHTML = "";
+        getProducts().forEach(p => nxtSelect.innerHTML += `<option value="${p.id}">${p.code} - ${p.name}</option>`);
+      }
+    }
+
+    function getInventoryNumbers(prodId, fromDate, toDate) {
+      const imports = getImports().filter(imp => imp.status === 'completed');
+      const orders = getOrders().filter(o => o.status === 'Đã xử lý' || o.status === 'Đã giao');
+      const inRange = date => (!fromDate || date >= fromDate) && (!toDate || date <= toDate);
+      const beforeRange = date => Boolean(fromDate) && date < fromDate;
+
+      let opening = 0;
+      let periodImport = 0;
+      let periodExport = 0;
+
+      imports.forEach(imp => {
+        imp.items.forEach(it => {
+          if (it.productId !== prodId) return;
+          if (beforeRange(imp.date)) opening += it.quantity;
+          if (inRange(imp.date)) periodImport += it.quantity;
+        });
+      });
+
+      orders.forEach(order => {
+        order.items.forEach(it => {
+          if (it.id !== prodId) return;
+          if (beforeRange(order.date)) opening -= it.quantity;
+          if (inRange(order.date)) periodExport += it.quantity;
+        });
+      });
+
+      return {
+        opening,
+        periodImport,
+        periodExport,
+        closing: opening + periodImport - periodExport
+      };
     }
 
     function renderInventoryReport() {
       const catFilter = document.getElementById("inv-filter-cat").value;
       const fromDate = document.getElementById("inv-date-from").value;
       const toDate = document.getElementById("inv-date-to").value;
+      const thresholdInput = document.getElementById("inv-low-threshold");
+      const threshold = Number(thresholdInput && thresholdInput.value !== "" ? thresholdInput.value : 5);
 
       let prods = getProducts();
       if (catFilter !== 'all') prods = prods.filter(p => p.categoryId === catFilter);
-
-      let imports = getImports().filter(imp => imp.status === 'completed');
-      let orders = getOrders().filter(o => o.status !== 'Hủy');
-
-      if (fromDate) {
-        imports = imports.filter(i => i.date >= fromDate);
-        orders = orders.filter(o => o.date >= fromDate);
-      }
-      if (toDate) {
-        imports = imports.filter(i => i.date <= toDate);
-        orders = orders.filter(o => o.date <= toDate);
-      }
 
       const cats = getCategories();
       const tbody = document.getElementById("inventory-table-body");
@@ -1519,43 +1550,52 @@
 
       prods.forEach(p => {
         const cat = cats.find(c => c.id === p.categoryId);
-
-        // Tính tổng nhập
-        let totalImport = 0;
-        imports.forEach(imp => {
-          imp.items.forEach(it => {
-            if (it.productId === p.id) totalImport += it.quantity;
-          });
-        });
-
-        // Tính tổng xuất
-        let totalExport = 0;
-        orders.forEach(ord => {
-          ord.items.forEach(it => {
-            if (it.id === p.id) totalExport += it.quantity;
-          });
-        });
-
-        const currentStock = totalImport - totalExport;
-        // YÊU CẦU: Cảnh báo sắp hết hàng (khi tồn kho < 5 cái)
-        const isLowStock = currentStock <= 3;
+        const numbers = getInventoryNumbers(p.id, fromDate, toDate);
+        const isLowStock = numbers.closing <= threshold;
 
         tbody.innerHTML += `
           <tr>
             <td><code>${p.code}</code></td>
             <td><strong>${p.name}</strong></td>
             <td>${cat ? cat.name : 'N/A'}</td>
-            <td><span class="badge badge-info">${totalImport}</span></td>
-            <td><span class="badge badge-warning">${totalExport}</span></td>
-            <td><strong style="font-size: 15px;">${currentStock}</strong></td>
+            <td><span class="badge badge-info">${numbers.opening}</span></td>
+            <td><span class="badge badge-info">${numbers.periodImport}</span></td>
+            <td><span class="badge badge-warning">${numbers.periodExport}</span></td>
+            <td><strong style="font-size: 15px;">${numbers.closing}</strong></td>
             <td>
-              ${isLowStock 
-                ? '<span class="badge badge-danger"><i class="fa-solid fa-triangle-exclamation"></i> Sắp hết hàng!</span>' 
+              ${isLowStock
+                ? '<span class="badge badge-danger"><i class="fa-solid fa-triangle-exclamation"></i> Sắp hết hàng!</span>'
                 : '<span class="badge badge-success">Đủ hàng</span>'}
             </td>
           </tr>
         `;
       });
+    }
+
+    function renderNxtReport() {
+      const select = document.getElementById("nxt-product");
+      const tbody = document.getElementById("nxt-table-body");
+      if (!select || !tbody) return;
+
+      const prod = getProducts().find(p => p.id === select.value);
+      if (!prod) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 20px; color: var(--text-muted);">Chưa có sản phẩm để thống kê.</td></tr>`;
+        return;
+      }
+
+      const fromDate = document.getElementById("nxt-date-from").value;
+      const toDate = document.getElementById("nxt-date-to").value;
+      const numbers = getInventoryNumbers(prod.id, fromDate, toDate);
+
+      tbody.innerHTML = `
+        <tr>
+          <td><strong>${prod.name}</strong><br><small style="color: var(--text-muted);">${prod.code}</small></td>
+          <td>${numbers.opening}</td>
+          <td>${numbers.periodImport}</td>
+          <td>${numbers.periodExport}</td>
+          <td><strong>${numbers.closing}</strong></td>
+        </tr>
+      `;
     }
 
     /* ========================================================

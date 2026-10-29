@@ -317,12 +317,20 @@
                                                                         data-js-args="[]" data-js-event="change"
                                                                         id="inv-date-to" type="date" />
                                                         </div>
-                                                        <div class="admin-style-387e0d35">
-                                                                <button class="btn btn-secondary"
-                                                                        data-js-action="renderInventoryReport"
-                                                                        data-js-args="[]" data-js-event="click"><i
-                                                                                class="fa-solid fa-arrows-rotate"></i>
-                                                                        Xem báo cáo</button>
+                                                        <div>
+                                                                <label class="admin-style-389f86ab">Cảnh báo khi tồn &le;:</label>
+                                                                <div class="u-style-fab19c78">
+                                                                        <input class="form-control"
+                                                                                data-js-action="renderInventoryReport"
+                                                                                data-js-args="[]" data-js-event="change"
+                                                                                id="inv-low-threshold" min="0" type="number"
+                                                                                value="5" />
+                                                                        <button class="btn btn-secondary"
+                                                                                data-js-action="renderInventoryReport"
+                                                                                data-js-args="[]" data-js-event="click"><i
+                                                                                        class="fa-solid fa-arrows-rotate"></i>
+                                                                                Xem báo cáo</button>
+                                                                </div>
                                                         </div>
                                                 </div>
                                                 <table class="custom-table">
@@ -334,10 +342,42 @@
                                                                         <th>Tổng Nhập</th>
                                                                         <th>Tổng Xuất</th>
                                                                         <th>Tồn Hiện Tại</th>
+                                                                        <th>Tồn Đầu Kỳ</th>
                                                                         <th>Cảnh Báo Hết Hàng</th>
                                                                 </tr>
                                                         </thead>
                                                         <tbody id="inventory-table-body"></tbody>
+                                                </table>
+
+                                                <h3><i class="fa-solid fa-chart-line"></i> Thống Kê Nhập - Xuất - Tồn Theo Sản Phẩm</h3>
+                                                <div class="admin-style-9119575a">
+                                                        <div>
+                                                                <label class="admin-style-389f86ab">Sản phẩm:</label>
+                                                                <select class="form-select" id="nxt-product"></select>
+                                                        </div>
+                                                        <div>
+                                                                <label class="admin-style-389f86ab">Từ ngày:</label>
+                                                                <input class="form-control" id="nxt-date-from" type="date" />
+                                                        </div>
+                                                        <div>
+                                                                <label class="admin-style-389f86ab">Đến ngày:</label>
+                                                                <input class="form-control" id="nxt-date-to" type="date" />
+                                                        </div>
+                                                        <div class="admin-style-387e0d35">
+                                                                <button class="btn btn-secondary" data-js-action="renderNxtReport" data-js-args="[]" data-js-event="click"><i class="fa-solid fa-chart-column"></i> Thống kê</button>
+                                                        </div>
+                                                </div>
+                                                <table class="custom-table">
+                                                        <thead>
+                                                                <tr>
+                                                                        <th>Sản phẩm</th>
+                                                                        <th>Tồn Đầu Kỳ</th>
+                                                                        <th>Nhập Trong Kỳ</th>
+                                                                        <th>Xuất Trong Kỳ</th>
+                                                                        <th>Tồn Cuối Kỳ</th>
+                                                                </tr>
+                                                        </thead>
+                                                        <tbody id="nxt-table-body"></tbody>
                                                 </table>
                                         </div>
                                 </div>

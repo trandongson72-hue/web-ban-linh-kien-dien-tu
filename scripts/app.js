@@ -1,6 +1,6 @@
-/* ========================================================
-       1. DATABASE DỮ LIỆU MẪU KHỞI TẠO (MOCK DATABASE LOCALSTORAGE)
-       ======================================================== */
+
+
+
     const DEFAULT_CATEGORIES = [
       { id: "cat-1", code: "ban-phim", name: "Bàn Phím", isHidden: false },
       { id: "cat-2", code: "chuot", name: "Chuột Máy Tính", isHidden: false },
@@ -137,7 +137,7 @@
       "static/images/USB Kingston 32GB.jpg": "static/images/usb-kingston.jpg"
     };
 
-    // Khởi tạo Storage nếu chưa có
+    
     function initDataStorage() {
       if (!localStorage.getItem("app_categories")) {
         localStorage.setItem("app_categories", JSON.stringify(DEFAULT_CATEGORIES));
@@ -161,7 +161,7 @@
         localStorage.setItem("app_users", JSON.stringify(DEFAULT_USERS));
       }
       if (!localStorage.getItem("app_orders")) {
-        // Tạo sẵn 1 đơn mẫu
+        
         const sampleOrder = [{
           orderId: "DH-1001",
           date: new Date().toISOString().split("T")[0],
@@ -179,16 +179,16 @@
         localStorage.setItem("app_orders", JSON.stringify(sampleOrder));
       }
       if (!localStorage.getItem("app_imports")) {
-        // Tạo sẵn 1 phiếu nhập hàng hoàn thành mẫu
+        
         const sampleImport = [{
           importId: "PN-8801",
           date: new Date().toISOString().split("T")[0],
-          status: "completed", // 'draft' hoặc 'completed'
+          status: "completed", 
           items: [
             { productId: "prod-1", quantity: 15, costPrice: 850000 },
             { productId: "prod-2", quantity: 20, costPrice: 420000 },
             { productId: "prod-4", quantity: 30, costPrice: 310000 },
-            { productId: "prod-5", quantity: 2, costPrice: 620000 } // Tồn ít để test cảnh báo
+            { productId: "prod-5", quantity: 2, costPrice: 620000 } 
           ],
           totalAmount: 22390000
         }];
@@ -199,11 +199,15 @@
       }
     }
 
-    /* Helper Getters / Setters */
+     
     function getCategories() { return JSON.parse(localStorage.getItem("app_categories")) || []; }
     function setCategories(data) { localStorage.setItem("app_categories", JSON.stringify(data)); }
     function getProducts() { return JSON.parse(localStorage.getItem("app_products")) || []; }
     function setProducts(data) { localStorage.setItem("app_products", JSON.stringify(data)); }
+    function getVisibleProducts() {
+      const hiddenCategoryIds = getCategories().filter(c => c.isHidden).map(c => c.id);
+      return getProducts().filter(p => !p.isHidden && !hiddenCategoryIds.includes(p.categoryId));
+    }
     function getUsers() { return JSON.parse(localStorage.getItem("app_users")) || []; }
     function setUsers(data) { localStorage.setItem("app_users", JSON.stringify(data)); }
     function getOrders() { return JSON.parse(localStorage.getItem("app_orders")) || []; }
@@ -227,9 +231,9 @@
       return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
     }
 
-    /* ========================================================
-       2. ĐIỀU HƯỚNG VIEW (NAVIGATION)
-       ======================================================== */
+    
+
+
     function navigateTo(viewId) {
       const pageByView = {
         "view-home": "index.html",
@@ -284,11 +288,11 @@
       }
     }
 
-    /* ========================================================
-       3. PHÂN HỆ KHÁCH HÀNG: HIỂN THỊ, TÌM KIẾM & PHÂN TRANG
-       ======================================================== */
+    
+
+
     let currentPage = 1;
-    const itemsPerPage = 4; // Để test phân trang dễ dàng
+    const itemsPerPage = 4; 
     let filteredProductList = null;
 
     function loadFilterCategories() {
@@ -305,7 +309,7 @@
       const val = searchInput ? searchInput.value.trim() : "";
       const keywordInput = document.getElementById("filter-keyword");
 
-      // Nếu đang ở trang khác trang chủ, lưu từ khóa rồi chuyển về trang chủ.
+      
       if (!keywordInput) {
         sessionStorage.setItem("techstore_pending_search", val);
         navigateTo('view-home');
@@ -331,7 +335,7 @@
       const catId = document.getElementById("filter-category").value;
       const priceRange = document.getElementById("filter-price-range").value;
       const categories = getCategories();
-      const prods = getProducts().filter(p => !p.isHidden);
+      const prods = getVisibleProducts();
 
       filteredProductList = prods.filter(p => {
         const category = categories.find(c => c.id === p.categoryId);
@@ -361,14 +365,14 @@
       document.getElementById("filter-category").value = "";
       document.getElementById("filter-price-range").value = "all";
       document.getElementById("top-search-input").value = "";
-      filteredProductList = getProducts().filter(p => !p.isHidden);
+      filteredProductList = getVisibleProducts();
       currentPage = 1;
       renderProducts();
     }
 
     function renderProducts() {
       if (filteredProductList === null) {
-        filteredProductList = getProducts().filter(p => !p.isHidden);
+        filteredProductList = getVisibleProducts();
       }
 
       const totalItems = filteredProductList.length;
@@ -406,7 +410,7 @@
         });
       }
 
-      // Render Pagination
+      
       const pagination = document.getElementById("product-pagination");
       pagination.innerHTML = "";
       if (totalPages > 1) {
@@ -428,6 +432,10 @@
       const prod = getProducts().find(p => p.id === prodId);
       if (!prod) return;
       const cat = getCategories().find(c => c.id === prod.categoryId);
+      if (prod.isHidden || (cat && cat.isHidden)) {
+        alert("Sản phẩm này hiện không khả dụng.");
+        return;
+      }
 
       const detailContainer = document.getElementById("detail-container");
       detailContainer.innerHTML = `
@@ -471,11 +479,11 @@
       addToCart(prodId, qty);
     }
 
-    /* ========================================================
-       4. PHÂN HỆ KHÁCH HÀNG: GIỎ HÀNG & ĐẶT HÀNG (CHECKOUT)
-       ======================================================== */
+    
+
+
     function handleCartClick() {
-      // YÊU CẦU: Khách hàng phải đăng nhập mới dùng được chức năng giỏ hàng
+      
       if (!getCurrentUser()) {
         alert("Bạn cần ĐĂNG NHẬP để xem và thao tác giỏ hàng!");
         navigateTo('view-auth');
@@ -586,12 +594,12 @@
         return;
       }
 
-      // Điền sẵn thông tin từ tài khoản
+      
       document.getElementById("checkout-name").value = user.fullName || "";
       document.getElementById("checkout-phone").value = user.phone || "";
       document.getElementById("checkout-address").value = user.address || "";
 
-      // Render tóm tắt
+      
       let total = 0;
       const summaryDiv = document.getElementById("checkout-items-summary");
       summaryDiv.innerHTML = "";
@@ -656,10 +664,10 @@
       orders.unshift(newOrder);
       setOrders(orders);
 
-      // Xóa giỏ hàng
+      
       setCart([]);
 
-      // Hiển thị hóa đơn xem lại đơn hàng vừa đặt (Yêu cầu đề bài)
+      
       renderInvoice(newOrder);
       navigateTo('view-order-success');
     }
@@ -731,9 +739,9 @@
       navigateTo('view-order-success');
     }
 
-    /* ========================================================
-       5. PHÂN HỆ KHÁCH HÀNG: ĐĂNG NHẬP, ĐĂNG KÝ, PROFILE
-       ======================================================== */
+    
+
+
     function renderAuthNav() {
       const user = getCurrentUser();
       const div = document.getElementById("auth-links");
@@ -862,14 +870,14 @@
     }
 
 
-    /* ========================================================
-       6. PHÂN HỆ QUẢN TRỊ VIÊN (ADMIN DASHBOARD SYSTEM)
-       ======================================================== */
+    
+
+
     function executeAdminLogin() {
       const u = document.getElementById("admin-user-input").value.trim();
       const p = document.getElementById("admin-pass-input").value.trim();
 
-      // Đăng nhập riêng cho Admin (yêu cầu đề bài)
+      
       if (u === "admin" && p === "123") {
         sessionStorage.setItem("admin_logged", "true");
         alert("Đăng nhập Admin thành công!");
@@ -906,7 +914,7 @@
       }
     }
 
-    /* 6.1 Admin: Quản lý người dùng */
+     
     function renderAdminUsers() {
       const users = getUsers();
       const tbody = document.getElementById("admin-user-table-body");
@@ -956,7 +964,7 @@
       }
     }
 
-    /* 6.2 Admin: Quản lý loại sản phẩm */
+     
     function renderAdminCategories() {
       const cats = getCategories();
       const tbody = document.getElementById("admin-category-table-body");
@@ -1028,14 +1036,21 @@
     }
 
     function deleteCategory(id) {
-      if (confirm("Bạn có chắc chắn muốn xóa loại sản phẩm này?")) {
-        let cats = getCategories().filter(c => c.id !== id);
-        setCategories(cats);
+      const cats = getCategories();
+      const cat = cats.find(c => c.id === id);
+      if (!cat) return;
+      const productCount = getProducts().filter(p => p.categoryId === id).length;
+      if (productCount > 0) {
+        alert(`Không thể xóa loại "${cat.name}" vì đang có ${productCount} sản phẩm thuộc loại này.\nHãy chuyển sản phẩm sang loại khác hoặc xóa sản phẩm trước.`);
+        return;
+      }
+      if (confirm(`Bạn có chắc chắn muốn xóa loại "${cat.name}"?`)) {
+        setCategories(cats.filter(c => c.id !== id));
         renderAdminCategories();
       }
     }
 
-    /* 6.3 Admin: Quản lý danh mục sản phẩm */
+     
     function renderAdminProducts() {
       const prods = getProducts();
       const cats = getCategories();
@@ -1070,7 +1085,7 @@
 
       document.getElementById("prod-id-edit").value = prodId || "";
 
-      // YÊU CẦU: Hiển thị đúng thông tin trước khi sửa
+      
       if (prodId) {
         const prod = getProducts().find(p => p.id === prodId);
         document.getElementById("prod-modal-title").innerText = "Sửa Thông Tin Sản Phẩm";
@@ -1149,7 +1164,7 @@
       }
     }
 
-    /* 6.4 Admin: Quản lý nhập hàng */
+     
     let currentDraftImportItems = [];
 
     function renderImportReceipts() {
@@ -1263,7 +1278,7 @@
     }
 
     function completeImport() {
-      // YÊU CẦU: Chỉ có thể sửa trước khi bấm hoàn thành
+      
       if (confirm("Khi hoàn thành, giá vốn và kho sẽ được cập nhật và KHÔNG thể sửa đổi phiếu này nữa. Bạn chắc chắn chứ?")) {
         saveImportWithStatus('completed');
       }
@@ -1295,14 +1310,14 @@
 
       setImports(imports);
 
-      // Nếu hoàn thành, cập nhật luôn giá vốn và tự tính lại giá bán cho sản phẩm
+      
       if (status === 'completed') {
         let prods = getProducts();
         currentDraftImportItems.forEach(it => {
           const p = prods.find(item => item.id === it.productId);
           if (p) {
             p.costPrice = it.costPrice;
-            // Tự tính giá bán = costPrice * (1 + profitRate / 100)
+            
             p.price = Math.round(p.costPrice * (1 + (p.profitRate || 30) / 100));
           }
         });
@@ -1324,7 +1339,7 @@
       alert(text);
     }
 
-    /* 6.5 Admin: Quản lý giá bán & % lợi nhuận */
+     
     function renderAdminPricing() {
       const prods = getProducts();
       const cats = getCategories();
@@ -1366,7 +1381,7 @@
       const p = prods.find(item => item.id === id);
       if (p) {
         p.profitRate = rate;
-        // Tự động tính lại giá bán = giá vốn * (1 + rate / 100)
+        
         p.price = Math.round((p.costPrice || 0) * (1 + rate / 100));
         setProducts(prods);
       }
@@ -1375,7 +1390,7 @@
       alert("Đã cập nhật tỉ lệ lợi nhuận và đồng bộ giá bán thành công!");
     }
 
-    /* 6.6 Admin: Quản lý đơn đặt hàng */
+     
     function renderAdminOrders() {
       const fromDate = document.getElementById("filter-order-from").value;
       const toDate = document.getElementById("filter-order-to").value;
@@ -1467,7 +1482,7 @@
       }
     }
 
-    /* 6.7 Admin: Quản lý tồn kho & Báo cáo Nhập - Xuất - Tồn */
+     
     function loadInventoryFilterCats() {
       const select = document.getElementById("inv-filter-cat");
       select.innerHTML = `<option value="all">-- Tất cả loại linh kiện --</option>`;
@@ -1501,7 +1516,7 @@
       prods.forEach(p => {
         const cat = cats.find(c => c.id === p.categoryId);
 
-        // Tính tổng nhập
+        
         let totalImport = 0;
         imports.forEach(imp => {
           imp.items.forEach(it => {
@@ -1509,7 +1524,7 @@
           });
         });
 
-        // Tính tổng xuất
+        
         let totalExport = 0;
         orders.forEach(ord => {
           ord.items.forEach(it => {
@@ -1518,7 +1533,7 @@
         });
 
         const currentStock = totalImport - totalExport;
-        // YÊU CẦU: Cảnh báo sắp hết hàng (khi tồn kho < 5 cái)
+        
         const isLowStock = currentStock <= 3;
 
         tbody.innerHTML += `
@@ -1539,9 +1554,9 @@
       });
     }
 
-    /* ========================================================
-       7. MODAL UTILITIES & APP START
-       ======================================================== */
+    
+
+
     function openModal(id) { document.getElementById(id).classList.add("active"); }
     function closeModal(id) { document.getElementById(id).classList.remove("active"); }
 
@@ -1550,13 +1565,13 @@
       renderAuthNav();
       updateCartBadge();
 
-      // Mở đúng view theo URL hash, hoặc view đầu tiên của từng trang.
+      
       const requestedView = window.location.hash.slice(1);
       const firstView = document.querySelector('.view-section.active') || document.querySelector('.view-section');
       const initialView = document.getElementById(requestedView) ? requestedView : (firstView ? firstView.id : null);
       if (initialView) navigateTo(initialView);
 
-      // Chỉ khởi tạo thành phần có trên trang hiện tại.
+      
       if (document.getElementById('filter-category')) loadFilterCategories();
       if (document.getElementById('product-container')) {
         renderProducts();
@@ -1572,16 +1587,16 @@
       if (document.getElementById('view-order-history')?.classList.contains('active')) renderOrderHistory();
       if (document.getElementById('view-profile')?.classList.contains('active')) loadProfile();
 
-      // Gắn listener cho các nút được tạo trong quá trình render ban đầu.
+      
       bindDataActionsIn(document);
     };
 
 
-/* ========================================================
-   12. EVENT LISTENERS - GẮN SỰ KIỆN TRỰC TIẾP TỪNG PHẦN TỬ
-   Các nút/điều khiển dùng data-js-action, data-js-args, data-js-event.
-   Mỗi phần tử tự có addEventListener; không dùng event delegation.
-   ======================================================== */
+
+
+
+
+
 function viewClientOrderDetailById(orderId) {
   const order = getOrders().find(item => item.orderId === orderId);
   if (!order) {
@@ -1629,8 +1644,8 @@ function runDataAction(trigger, event) {
 
   action(...args);
 
-  // Sau khi hàm xử lý cập nhật giao diện bằng innerHTML, gắn listener
-  // trực tiếp cho các phần tử mới được tạo. Không dùng event delegation.
+  
+  
   bindDataActionsIn(document);
 }
 
@@ -1653,8 +1668,8 @@ function bindDataActionsIn(root) {
 }
 
 function initializeDataActionListeners() {
-  // Gắn addEventListener trực tiếp lên từng phần tử hiện có.
-  // Phần tử tạo động sẽ được gắn lại sau mỗi action và sau lần render khởi tạo.
+  
+  
   bindDataActionsIn(document);
 }
 

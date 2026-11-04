@@ -1441,6 +1441,12 @@
       if (!order) return;
 
       const content = document.getElementById("admin-order-detail-content");
+
+      // Đơn đã kết thúc (Đã giao / Hủy) thì không cho đổi trạng thái nữa.
+      // Lý do: báo cáo tồn kho chỉ trừ kho với đơn "Đã xử lý" và "Đã giao",
+      // nên sửa lại trạng thái của đơn đã giao/hủy sẽ làm số liệu tồn kho sai lệch.
+      const isLocked = order.status === 'Đã giao' || order.status === 'Hủy';
+
       let itemsHtml = order.items.map(it => `
         <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0;">
           <span>${it.name} (x${it.quantity})</span>
@@ -1462,13 +1468,16 @@
         <!-- YÊU CẦU: Cập nhật 4 trạng thái: mới đặt, đã xử lý, đã giao, hủy -->
         <div class="form-group">
           <label style="font-weight: 600;">Cập nhật tình trạng đơn hàng:</label>
-          <select id="update-order-status-select" class="form-select" style="margin-top: 6px;">
+          <select id="update-order-status-select" class="form-select" style="margin-top: 6px;" ${isLocked ? 'disabled' : ''}>
             <option value="Mới đặt" ${order.status === 'Mới đặt' ? 'selected' : ''}>Mới đặt</option>
             <option value="Đã xử lý" ${order.status === 'Đã xử lý' ? 'selected' : ''}>Đã xử lý</option>
             <option value="Đã giao" ${order.status === 'Đã giao' ? 'selected' : ''}>Đã giao</option>
             <option value="Hủy" ${order.status === 'Hủy' ? 'selected' : ''}>Hủy</option>
           </select>
-          <button class="btn btn-primary" style="margin-top: 10px;" data-js-action="saveOrderStatus" data-js-args='["${order.orderId}"]' data-js-event="click">Lưu Trạng Thái Mới</button>
+          <button class="btn btn-primary" style="margin-top: 10px;" data-js-action="saveOrderStatus" data-js-args='["${order.orderId}"]' data-js-event="click" ${isLocked ? 'disabled' : ''}>Lưu Trạng Thái Mới</button>
+          ${isLocked
+            ? '<p style="margin-top: 8px; font-size: 13px; color: var(--text-muted);"><i class="fa-solid fa-lock"></i> Đơn đã kết thúc, không thể đổi tình trạng.</p>'
+            : ''}
         </div>
       `;
       openModal("modal-admin-order-detail");
@@ -1478,13 +1487,21 @@
       const newStatus = document.getElementById("update-order-status-select").value;
       let orders = getOrders();
       const o = orders.find(item => item.orderId === orderId);
-      if (o) {
-        o.status = newStatus;
-        setOrders(orders);
+      if (!o) return;
+
+      // Chốt chặn thứ 2 (phòng khi nút bị bật lại bằng console/DevTools):
+      // đơn đã giao hoặc đã huỷ là trạng thái cuối, không cho sửa nữa.
+      if (o.status === 'Đã giao' || o.status === 'Hủy') {
+        alert(`Đơn hàng ${orderId} đã kết thúc (${o.status}), không thể đổi trạng thái.`);
         closeModal("modal-admin-order-detail");
-        renderAdminOrders();
-        alert(`Đơn hàng ${orderId} đã được cập nhật sang trạng thái: "${newStatus}"!`);
+        return;
       }
+
+      o.status = newStatus;
+      setOrders(orders);
+      closeModal("modal-admin-order-detail");
+      renderAdminOrders();
+      alert(`Đơn hàng ${orderId} đã được cập nhật sang trạng thái: "${newStatus}"!`);
     }
 
     /* 6.7 Admin: Quản lý tồn kho & Báo cáo Nhập - Xuất - Tồn */
@@ -1585,6 +1602,14 @@
 
       const fromDate = document.getElementById("nxt-date-from").value;
       const toDate = document.getElementById("nxt-date-to").value;
+
+      // Chặn khoảng thời gian ngược: nếu "từ ngày" > "đến ngày" thì tồn đầu kỳ
+      // sẽ bị tính bằng toàn bộ lịch sử và nhập/xuất trong kỳ bằng 0 (số liệu vô nghĩa).
+      if (fromDate && toDate && fromDate > toDate) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 20px; color: var(--danger-color);"><i class="fa-solid fa-triangle-exclamation"></i> Khoảng thời gian không hợp lệ: "Từ ngày" phải nhỏ hơn hoặc bằng "Đến ngày".</td></tr>`;
+        return;
+      }
+
       const numbers = getInventoryNumbers(prod.id, fromDate, toDate);
 
       tbody.innerHTML = `

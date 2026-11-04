@@ -969,14 +969,26 @@
     /* 6.2 Admin: Quản lý loại sản phẩm */
     function renderAdminCategories() {
       const cats = getCategories();
+      const allProducts = getProducts();
       const tbody = document.getElementById("admin-category-table-body");
       tbody.innerHTML = "";
 
+      if (cats.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-muted);">Chưa có loại sản phẩm nào. Bấm "Thêm Loại" để tạo mới.</td></tr>`;
+        return;
+      }
+
       cats.forEach(c => {
+        const productCount = allProducts.filter(p => p.categoryId === c.id).length;
+        const countCell = productCount > 0
+          ? `<span class="badge badge-info">${productCount}</span>`
+          : `<span style="color: var(--text-muted);">0</span>`;
+
         tbody.innerHTML += `
           <tr>
             <td><code>${c.code}</code></td>
             <td><strong>${c.name}</strong></td>
+            <td>${countCell}</td>
             <td>${c.isHidden ? '<span class="badge badge-danger">Đã Ẩn</span>' : '<span class="badge badge-success">Hiển Thị</span>'}</td>
             <td>
               <button class="btn btn-secondary btn-sm" data-js-action="openCategoryModal" data-js-args='["${c.id}"]' data-js-event="click"><i class="fa-solid fa-pen"></i> Sửa</button>
@@ -1016,6 +1028,12 @@
       }
 
       let cats = getCategories();
+      const duplicated = cats.some(c => (c.code || "").toLowerCase() === code.toLowerCase() && c.id !== id);
+      if (duplicated) {
+        alert(`Mã loại "${code}" đã được dùng cho một loại khác.\nVui lòng chọn mã khác.`);
+        return;
+      }
+
       if (id) {
         const cat = cats.find(c => c.id === id);
         if (cat) { cat.code = code; cat.name = name; }
@@ -1030,11 +1048,26 @@
     function toggleHideCategory(id) {
       let cats = getCategories();
       const cat = cats.find(c => c.id === id);
-      if (cat) {
-        cat.isHidden = !cat.isHidden;
-        setCategories(cats);
-        renderAdminCategories();
+      if (!cat) return;
+
+      // Ẩn loại cũng làm toàn bộ sản phẩm bên trong biến mất khỏi cửa hàng
+      // (xem getVisibleProducts), nên phải nói rõ trước khi ẩn.
+      if (!cat.isHidden) {
+        const productCount = getProducts().filter(p => p.categoryId === id).length;
+        if (productCount > 0) {
+          const ok = confirm(
+            `Ẩn loại "${cat.name}"?\n\n` +
+            `${productCount} sản phẩm thuộc loại này cũng sẽ không hiển thị trên cửa hàng.\n` +
+            `Dữ liệu vẫn giữ nguyên — bấm "Hiện" để hiển thị lại.`
+          );
+          if (!ok) return;
+        }
       }
+
+      cat.isHidden = !cat.isHidden;
+      setCategories(cats);
+      renderAdminCategories();
+      renderAdminProducts();
     }
 
     function deleteCategory(id) {
@@ -1062,8 +1095,23 @@
       const tbody = document.getElementById("admin-product-table-body");
       tbody.innerHTML = "";
 
+      if (prods.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 24px; color: var(--text-muted);">Chưa có sản phẩm nào. Bấm "Thêm Sản Phẩm Mới" để tạo mới.</td></tr>`;
+        return;
+      }
+
       prods.forEach(p => {
         const cat = cats.find(c => c.id === p.categoryId);
+
+        // Sản phẩm có thể bị ẩn trực tiếp, hoặc ẩn gián tiếp vì loại của nó đang ẩn.
+        // Phải hiển thị đúng cả hai trường hợp, tránh báo "Hiển Thị" sai sự thật.
+        let statusBadge = '<span class="badge badge-success">Hiển Thị</span>';
+        if (p.isHidden) {
+          statusBadge = '<span class="badge badge-danger">Đã Ẩn</span>';
+        } else if (cat && cat.isHidden) {
+          statusBadge = '<span class="badge badge-warning" title="Loại sản phẩm đang ẩn nên sản phẩm cũng không hiển thị trên cửa hàng">Ẩn theo loại</span>';
+        }
+
         tbody.innerHTML += `
           <tr>
             <td><img src="${p.image}" width="40" height="40" style="object-fit: contain; background: #eee; border-radius: 4px;" onerror="this.onerror=null;this.src='static/images/default-product.svg';"></td>
@@ -1071,11 +1119,11 @@
             <td><strong>${p.name}</strong></td>
             <td>${cat ? cat.name : 'N/A'}</td>
             <td>${formatVND(p.price)}</td>
-            <td>${p.isHidden ? '<span class="badge badge-danger">Đã Ẩn</span>' : '<span class="badge badge-success">Hiển Thị</span>'}</td>
+            <td>${statusBadge}</td>
             <td>
               <button class="btn btn-secondary btn-sm" data-js-action="openProductModal" data-js-args='["${p.id}"]' data-js-event="click"><i class="fa-solid fa-pen"></i> Sửa</button>
               <button class="btn btn-outline-primary btn-sm" data-js-action="toggleHideProduct" data-js-args='["${p.id}"]' data-js-event="click">${p.isHidden ? 'Hiện' : 'Ẩn'}</button>
-              <button class="btn btn-danger btn-sm" data-js-action="deleteProduct" data-js-args='["${p.id}"]' data-js-event="click"><i class="fa-solid fa-trash"></i></button>
+              <button class="btn btn-danger btn-sm" data-js-action="deleteProduct" data-js-args='["${p.id}"]' data-js-event="click"><i class="fa-solid fa-trash"></i> Xóa</button>
             </td>
           </tr>
         `;
@@ -1125,7 +1173,22 @@
         return;
       }
 
+      if (!catId) {
+        alert("Chưa có loại sản phẩm nào. Hãy tạo loại sản phẩm trước khi thêm sản phẩm.");
+        return;
+      }
+      if (!getCategories().some(c => c.id === catId)) {
+        alert("Loại sản phẩm đã chọn không tồn tại. Vui lòng chọn lại.");
+        return;
+      }
+
       let prods = getProducts();
+      const duplicated = prods.some(p => (p.code || "").toLowerCase() === code.toLowerCase() && p.id !== id);
+      if (duplicated) {
+        alert(`Mã sản phẩm "${code}" đã được dùng cho sản phẩm khác.\nVui lòng chọn mã khác.`);
+        return;
+      }
+
       if (id) {
         const p = prods.find(item => item.id === id);
         if (p) {
@@ -1133,6 +1196,12 @@
           p.categoryId = catId;
           p.name = name;
           p.price = price;
+          // Tab "Quản lý giá bán" tính giá bán = giá vốn × (1 + %lợi nhuận).
+          // Giá vốn do phiếu nhập quyết định nên không sửa ở đây; thay vào đó suy ngược
+          // %lợi nhuận từ giá bán vừa nhập để 3 con số không mâu thuẫn nhau.
+          if (p.costPrice > 0) {
+            p.profitRate = Number(((price / p.costPrice - 1) * 100).toFixed(4)); // 4 chữ số để giá bán tính lại từ % không lệch vài chục đồng
+          }
           p.image = img;
           p.description = desc;
         }
@@ -1140,7 +1209,9 @@
         prods.push({
           id: "prod-" + Date.now(),
           code, categoryId: catId, name,
-          costPrice: Math.round(price * 0.7),
+          // Giá vốn suy ra từ giá bán theo đúng công thức dùng ở tab "Quản lý giá bán":
+          // price = costPrice * (1 + profitRate / 100), với profitRate mặc định 30%.
+          costPrice: Math.round(price / 1.3),
           profitRate: 30,
           price, image: img, description: desc,
           isHidden: false
@@ -1162,9 +1233,24 @@
     }
 
     function deleteProduct(id) {
-      if (confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
-        let prods = getProducts().filter(item => item.id !== id);
-        setProducts(prods);
+      const prods = getProducts();
+      const p = prods.find(item => item.id === id);
+      if (!p) return;
+
+      // Sản phẩm đã phát sinh giao dịch thì không được xóa: nếu xóa, báo cáo tồn kho
+      // (mục 8) sẽ mất số liệu nhập/xuất của sản phẩm đó. Đơn hàng lưu sản phẩm ở it.id,
+      // phiếu nhập lưu ở it.productId. Muốn ngừng bán thì dùng nút "Ẩn".
+      const orderCount = getOrders().filter(o => (o.items || []).some(it => it.id === id)).length;
+      const importCount = getImports().filter(imp => (imp.items || []).some(it => it.productId === id)).length;
+      if (orderCount > 0 || importCount > 0) {
+        alert(`Không thể xóa sản phẩm "${p.name}" vì đã phát sinh giao dịch:\n` +
+          `- ${orderCount} đơn hàng\n- ${importCount} phiếu nhập\n\n` +
+          `Hãy bấm "Ẩn" để ngừng bán nhưng vẫn giữ lịch sử và số liệu tồn kho.`);
+        return;
+      }
+
+      if (confirm(`Bạn có chắc chắn muốn xóa sản phẩm "${p.name}"?`)) {
+        setProducts(prods.filter(item => item.id !== id));
         renderAdminProducts();
       }
     }

@@ -8,7 +8,19 @@ const SP = [
   { id: 'LT01', ten: 'Laptop Pro 14"',         loai: 'Laptop',     gia: 22500000 },
   { id: 'LT02', ten: 'Laptop Study 15"',       loai: 'Laptop',     gia: 13900000 },
   { id: 'PK01', ten: 'Sạc nhanh 65W',          loai: 'Phụ kiện',   gia: 350000 },
-  { id: 'PK02', ten: 'Cáp USB-C 1m',           loai: 'Phụ kiện',   gia: 90000 }
+  { id: 'PK02', ten: 'Cáp USB-C 1m',           loai: 'Phụ kiện',   gia: 90000 },
+  { id: 'TN03', ten: 'Tai nghe Bluetooth chụp tai GoChek SpaceX S-1000',   loai: 'Tai nghe',   gia: 590000 },
+  { id: 'TN04', ten: 'Tai nghe UGREEN HiTune Max5c ANC',      loai: 'Tai nghe',   gia: 750000 },
+  { id: 'TN05', ten: 'Tai nghe Lenovo LP75',       loai: 'Tai nghe',   gia: 120000 },
+  { id: 'DT04', ten: 'Điện thoại XIAOMI 17',     loai: 'Điện thoại', gia: 7490000 },
+  { id: 'DT05', ten: 'Điện thoại IPhone 13 Mini',       loai: 'Điện thoại', gia: 2990000 },
+  { id: 'DT06', ten: 'Điện thoại Galaxy S26 Ultra',   loai: 'Điện thoại', gia: 24990000 },
+  { id: 'LT03', ten: 'Laptop Gaming ACER NITRO V15',       loai: 'Laptop',     gia: 27900000 },
+  { id: 'LT04', ten: 'Laptop Office Slim 14"',      loai: 'Laptop',     gia: 11500000 },
+  { id: 'LT05', ten: 'Laptop Air 13"',              loai: 'Laptop',     gia: 18900000 },
+  { id: 'PK03', ten: 'Pin dự phòng 10000mAh',       loai: 'Phụ kiện',   gia: 290000 },
+  { id: 'PK04', ten: 'Chuột không dây X11',          loai: 'Phụ kiện',   gia: 180000 },
+  { id: 'PK05', ten: 'Bàn phím cơ K87',             loai: 'Phụ kiện',   gia: 650000 },
 ];
 
 const NHAP = [

@@ -118,6 +118,11 @@ function renderProducts() {
       `;
     }
   }
+
+  // Các nút vừa tạo bằng innerHTML (Chi tiết, Mua, số trang...) chưa có sự kiện nên phải gắn lại.
+  // Bắt buộc có dòng này vì lúc mở trang renderProducts() chạy 2 lần (navigateTo trong common.js,
+  // rồi cái load của file này); lần chạy sau thay mới toàn bộ nút, làm mất sự kiện đã gắn ở lần trước.
+  bindDataActionsIn(document);
 }
 
 function goToPage(page) {

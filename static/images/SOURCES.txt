@@ -29,3 +29,9 @@ usb-kingston.jpg
 https://commons.wikimedia.org/wiki/File:USB_flash_drive_made_by_LG_CNS_20050109.jpg
 Photograph by Jurema Oliveira, CC BY-SA 3.0:
 https://creativecommons.org/licenses/by-sa/3.0/
+
+Additional product images taken from the repository's main branch:
+DT04.webp, DT05.jpg, DT06.jpg
+LT03.webp, LT04.webp, LT05.jpg
+PK03.jpg, PK04.webp, PK05.webp
+TN03.webp, TN04.webp, TN05.webp

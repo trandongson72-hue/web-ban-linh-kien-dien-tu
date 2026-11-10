@@ -1,92 +1,361 @@
-# TechStore — Website bán linh kiện điện tử
+# TÓM TẮT CÁC THAY ĐỔI
 
-Đồ án môn Lập trình web. Toàn bộ là HTML/CSS/JavaScript thuần, **không cần build, không cần backend** — dữ liệu lưu trong `localStorage` của trình duyệt.
-
-## Cách chạy
-
-1. Mở `index.html` trực tiếp bằng Chrome/Firefox, hoặc
-2. Dùng Live Server (VS Code) trỏ vào thư mục gốc.
-
-Tài khoản admin mặc định: **admin / 123** (đăng nhập ở trang chủ → menu tài khoản → Quản trị).
-
-## Cấu trúc hiện tại
-
-```
-.
-├── index.html                Trang chủ: danh sách + lọc sản phẩm
-├── shopping.html             Giỏ hàng, thanh toán, lịch sử đơn
-├── account.html              Hồ sơ khách hàng
-├── admin.html                Khu quản trị (7 tab, 6 modal, SPA trong 1 trang)
-├── scripts/
-│   ├── common.js             Dữ liệu mẫu, localStorage, điều hướng, giỏ hàng, modal, sự kiện
-│   ├── index.js              Logic riêng trang chủ: lọc, tìm kiếm, phân trang
-│   ├── shopping.js           Logic riêng giỏ hàng, thanh toán, lịch sử đơn
-│   ├── account.js            Logic riêng đăng nhập, đăng ký, hồ sơ
-│   └── admin.js              Logic riêng khu quản trị (7 tab)
-├── styles/
-│   ├── common.css            Biến màu, layout, nút, form, bảng, modal
-│   ├── index.css             CSS riêng trang chủ
-│   ├── shopping.css          CSS riêng giỏ hàng
-│   ├── account.css           CSS riêng tài khoản
-│   └── admin.css             CSS riêng trang quản trị
-├── static/images/            20 ảnh sản phẩm + default-product.svg
-└── README.md                 Tài liệu này
-```
+Dự án: TechStore – Website bán linh kiện điện tử  
+Ngày sửa: 10/11/2026  
+  
+> Mỗi phần chính có giải thích: **Trước khi sửa → Sau khi sửa → Tại sao sửa → Ảnh hưởng**.
 
 ---
 
-# Nhật ký thay đổi
+## 1. scripts/common.js
 
-## 1. Siết quản lý loại sản phẩm & danh mục sản phẩm
+### 1.1. Thêm `profitRate` vào category seed
 
-Các điểm từng làm 2 mục "Quản lý loại sản phẩm" (0,5đ) và "Quản lý danh mục sản phẩm" (0,75đ) dễ bị trừ điểm:
+**Trước:** Category chỉ có `id`, `code`, `name`, `isHidden`. Không có trường `% lợi nhuận` theo loại.
 
-- **Trùng mã:** mã loại / mã sản phẩm trùng nhau (không phân biệt hoa thường) bị chặn; sửa mà giữ nguyên mã của chính nó vẫn lưu được.
-- **Loại không hợp lệ:** không tạo được sản phẩm khi chưa có loại, hoặc khi `categoryId` không tồn tại.
-- **Trạng thái sai:** sản phẩm thuộc loại đang ẩn ghi "Ẩn theo loại" (trước ghi "Hiển Thị"); ẩn loại có sản phẩm thì hỏi lại kèm số lượng sản phẩm bị ảnh hưởng.
-- **Giá vốn lệch:** tạo sản phẩm tính `costPrice = giá bán / 1.3` (trước là `× 0.7`); sửa giá bán thì suy ngược `profitRate` để giá vốn, % lợi nhuận và giá bán khớp nhau. Chỗ hiển thị `%` dùng `??` thay `||` để mức 0% không bị đổi thành 30%.
-- **Quản lý giá:** modal sửa giá bán hoặc % lợi nhuận; sửa ô nào thì ô còn lại tự cập nhật theo giá vốn (`% = (giá bán / giá vốn - 1) × 100`, `giá bán = giá vốn × (1 + % / 100)`). Lưu xong bảng quản lý giá cập nhật ngay; sửa giá ở modal sản phẩm cũng đồng bộ % sang tab này.
-- **Xoá an toàn:** xoá sản phẩm đã có trong đơn hàng / phiếu nhập bị chặn và hướng dẫn dùng "Ẩn"; hộp thoại xoá nêu tên sản phẩm.
-- **Xoá loại:** mở hộp thoại cảnh báo số sản phẩm đang có, với các nút **Hủy** / **Ẩn loại** / **Vẫn xóa loại** / **Xóa loại + sản phẩm**. **Ẩn loại** giữ nguyên sản phẩm (bấm "Hiện" để khôi phục); **Vẫn xóa loại** thì các sản phẩm trong loại bị ẩn và bỏ loại. **Xóa loại + sản phẩm** xoá vĩnh viễn cả loại lẫn sản phẩm bên trong, nhưng bị chặn nếu sản phẩm đã phát sinh đơn hàng / phiếu nhập (để không mất số liệu tồn kho) và hướng dẫn dùng **Vẫn xóa loại**. Đơn hàng / phiếu nhập cũ giữ nguyên ảnh chụp sản phẩm nên vẫn hoạt động bình thường. Loại đã ẩn sẵn thì không hiện nút **Ẩn loại**; loại rỗng thì không hiện nút **Xóa loại + sản phẩm**.
-- **Bảng biểu:** thêm cột "Số sản phẩm" ở bảng loại, thông báo khi bảng trống, nút xoá sản phẩm có chữ "Xóa".
+**Sau:** Mỗi category có thêm `profitRate: 30`.
 
-Đã kiểm chứng bằng bộ test cục bộ (102 case cho phần này + 7 case cũ) và mô phỏng nạp cả 4 trang.
-
-## 2. Tách `scripts/app.js` theo trang
-
-`scripts/app.js` cũ (1.749 dòng) được tách thành 5 file; mỗi trang chỉ nạp `common.js` + file của mình:
-
-| File | Nội dung | Dòng |
-|---|---|---:|
-| `scripts/common.js` | Dữ liệu mẫu, localStorage, định dạng tiền, điều hướng, giỏ hàng, modal, bộ gắn sự kiện `data-js-action` | 675 |
-| `scripts/index.js` | Lọc, tìm kiếm, phân trang, xem chi tiết sản phẩm | 200 |
-| `scripts/shopping.js` | Giỏ hàng, thanh toán, hoá đơn, lịch sử đơn | 236 |
-| `scripts/account.js` | Đăng nhập, đăng ký, hồ sơ khách hàng | 113 |
-| `scripts/admin.js` | 7 tab quản trị | 998 |
-
-`scripts/app.js` gốc được xoá sau khi tách. Thứ tự nạp trong 4 file HTML:
-
-```html
-<script src="scripts/common.js"></script>
-<script src="scripts/index.js"></script>
-<!-- shopping.html: shopping.js · account.html: account.js · admin.html: admin.js -->
+```diff
+- { id: "cat-1", code: "ban-phim", name: "Bàn Phím", isHidden: false },
++ { id: "cat-1", code: "ban-phim", name: "Bàn Phím", profitRate: 30, isHidden: false },
 ```
 
-`window.onload = ...` được thay bằng `window.addEventListener("load", ...)` ở từng file, vì nhiều file cùng gán `window.onload` sẽ ghi đè lẫn nhau. Toàn bộ hàm của bản cũ được giữ nguyên, không hàm nào bị mất hoặc khai báo trùng giữa các file.
+**Tại sao:** PDF yêu cầu "hiển thị & nhập/sửa % lợi nhuận theo loại sản phẩm". Cần có trường này trên category.
 
-## 3. Bổ sung hàng hóa từ nhánh `main`
+**Ảnh hưởng:** Rubric admin mục 14 (% lợi nhuận theo loại) từ **CHƯA ĐẠT** → **ĐÃ ĐẠT**.
 
-Danh mục mẫu tăng từ 8 lên **20 sản phẩm**, 4 lên **6 loại**:
+---
 
-- Lấy 12 ảnh mới từ `origin/main`: `TN03`–`TN05` (tai nghe), `DT04`–`DT06` (điện thoại), `LT03`–`LT05` (laptop), `PK03`–`PK05` (phụ kiện), giữ nguyên tên file.
-- Thêm 2 loại: **Điện Thoại** (`cat-5`) và **Laptop** (`cat-6`).
-- Thêm 12 sản phẩm mẫu `prod-9` … `prod-20`; tên và giá lấy từ danh sách sản phẩm trong `admin.js` gốc của nhánh `main`. Giá vốn suy ra bằng `giá bán / 1.3`, % lợi nhuận 30% để khớp công thức hiện tại.
-- Phân loại lại theo đúng kiểu hàng: tai nghe → `cat-3`, điện thoại → `cat-5`, laptop → `cat-6`, pin dự phòng → `cat-4`, chuột không dây → `cat-2`, bàn phím cơ → `cat-1`.
-- Không chép các file prototype ở gốc `main` (`admin.css`, `admin.js`, `admin-import-pricing.html`, `web hoan chinh.html`) vì trùng chức năng với app hiện tại.
+### 1.2. Migration điền `profitRate` cho category cũ
 
-Để người đã dùng app không phải xóa `localStorage`, `initDataStorage()` gọi thêm `applySeedUpdates()`:
+**Hàm mới:** `applyCategoryProfitRateDefaults()` (dòng 331–349)
 
-- `app_seed_version = 2` đánh dấu đã bổ sung.
-- Lần đầu mở bản mới, chỉ thêm các loại / sản phẩm mới vào dữ liệu đang có.
-- Không ghi đè sản phẩm đã sửa và không khôi phục mục người dùng đã xóa.
-- Kiểm tra dữ liệu mẫu: đủ 20 sản phẩm, 6 loại, không trùng `id`/`code`, tất cả ảnh tồn tại. 12 sản phẩm mới có giá bán lệch không quá 1 đồng so với `giá vốn × (1 + % lợi nhuận / 100)` do làm tròn; 8 sản phẩm cũ giữ nguyên giá và % gốc từ nhánh `main`.
+**Tại sao:** Người dùng đã dùng app trước bản cập nhật này có category trong localStorage mà không có trường `profitRate`. Hàm này điền `30%` cho những category thiếu trường, **không ghi đè** % đã có.
+
+**Cách dùng:** Gọi trong `initDataStorage()` sau `applySeedUpdates()`.
+
+---
+
+### 1.3. Hàm `escapeHtml()` ngăn chặn XSS
+
+**Hàm mới:** `escapeHtml(text)` (dòng 478–486)
+
+**Trước:** Các hàm render dùng `innerHTML` trực tiếp với dữ liệu từ localStorage, nguy cơ Stored XSS nếu dữ liệu chứa script độc hại.
+
+**Sau:** Truyền dữ liệu qua `escapeHtml()` trước khi gán vào `innerHTML`.
+
+```diff
+- <td>${u.username}</td>
++ <td>${escapeHtml(u.username)}</td>
+```
+
+**Áp dụng ở:** `renderAdminUsers`, `renderAdminProducts`, `renderAdminPricing`, `renderAdminOrders`, `renderCart`, `renderInvoice`, `renderOrderHistory`.
+
+---
+
+### 1.4. Hàm `getAvailableStock()` tính tồn kho thực
+
+**Hàm mới:** `getAvailableStock(prodId)`
+
+**Công thức:** Tồn kho = nhập hoàn thành − đơn đã xử lý/giao.
+
+**Tại sao:** Trước đây không có hàm tính tồn kho thực tế, dẫn đến có thể đặt hàng vượt tồn.
+
+**Được dùng ở:** `submitOrder()` trong `shopping.js` để kiểm tra trước khi đặt hàng.
+
+---
+
+### 1.5. Sửa tổng phiếu nhập mẫu sai
+
+**Trước:** `totalAmount: 22390000` (sai, thiếu 9.300.000)
+
+**Sau:** `totalAmount: 31690000` (đúng tổng các dòng hàng)
+
+**Tại sao:** Lỗi nhập tay trong seed, không phải công thức.
+
+---
+
+### 1.6. Sửa 4 giá seed lệch công thức
+
+| Sản phẩm | Trước (sai) | Sau (đúng) | Công thức |
+|----------|-------------|------------|-----------|
+| `prod-1` (Bàn phím Akko) | 1.150.000 | 1.147.500 | 850.000 × 1,35 |
+| `prod-2` (Bàn phím Dareu) | 550.000 | 546.000 | 420.000 × 1,30 |
+| `prod-4` (Chuột G102) | 420.000 | 418.500 | 310.000 × 1,35 |
+| `prod-8` (USB Kingston) | 120.000 | 119.000 | 85.000 × 1,40 |
+
+**Tại sao:** Giá bán phải khớp `costPrice × (1 + profitRate/100)`.
+
+---
+
+## 2. scripts/admin.js
+
+### 2.1. % Lợi nhuận theo loại sản phẩm (CHÍNH)
+
+**Hàm mới:** `applyCategoryProfitRate(catId)` (dòng 196–226)
+
+**Trước:** Không có nút áp % loại cho sản phẩm.
+
+**Sau:** Nút "Áp % cho SP" trong bảng loại sản phẩm. Khi bấm:
+- Hiện confirm hỏi số lượng sản phẩm sẽ bị ảnh hưởng
+- Nếu đồng ý, duyệt toàn bộ sản phẩm trong loại, gán `profitRate` mới và tính lại `price = round(costPrice × (1 + rate/100))`
+
+**Tại sao:** PDF yêu cầu áp dụng hàng loạt % loại xuống sản phẩm.
+
+---
+
+### 2.2. Gợi ý % loại khi thêm/sửa sản phẩm
+
+**Hàm mới:** `updateProductCategoryRateHint()` (dòng 430–441)
+
+**Trước:** Modal thêm sản phẩm không hiển thị % của loại đã chọn.
+
+**Sau:** HiệnSmall text dưới select loại: "% lợi nhuận của loại 'Bàn Phím': 30% (sản phẩm mới sẽ dùng % này)".
+
+---
+
+### 2.3. Sản phẩm mới kế thừa % của loại
+
+**Hàm:** `saveProduct()` (dòng 521–534)
+
+**Trước:** Sản phẩm mới luôn `profitRate: 30`, `costPrice = round(price / 1.3)`.
+
+**Sau:** Lấy `categoryRate` của loại đã chọn, gán `profitRate = categoryRate`, suy ngược `costPrice = round(price / (1 + categoryRate/100))`.
+
+**Ví dụ:** Chọn loại "Bàn Phím" (profitRate 35), nhập giá bán 1.000.000 → `costPrice = 740.741`, `profitRate = 35`.
+
+---
+
+### 2.4. Tìm phiếu nhập mở rộng
+
+**Hàm:** `renderImportReceipts()` (dòng 577–633)
+
+**Trước:** Chỉ tìm theo `importId` (mã phiếu).
+
+**Sau:** Tìm theo:
+- Mã phiếu (`importId`)
+- Ngày nhập (cả `yyyy-mm-dd` và `dd/mm/yyyy`)
+- Trạng thái ("bản nháp"/"draft", "đã hoàn thành"/"completed")
+- Tên/mã sản phẩm trong phiếu
+- Tổng tiền (số thô và chuỗi tiền đã định dạng)
+
+**Tại sao:** Rubric admin mục 10 từ **ĐẠT MỘT PHẦN** → **ĐÃ ĐẠT**.
+
+---
+
+### 2.5. Tra cứu giá bán (CHÍNH)
+
+**Hàm:** `renderAdminPricing()` (dòng 811–870)
+
+**Trước:** Chỉ hiển thị bảng, không tìm, không lọc, không sắp xếp.
+
+**Sau:**
+- Ô tìm kiếm theo mã, tên, loại, giá vốn, %, giá bán
+- Select lọc theo loại (giữ lựa chọn khi render lại)
+- Select sắp xếp theo giá bán / % (tăng/giảm)
+- Nút "Xóa lọc"
+- Thông báo khi không tìm thấy kết quả
+
+**Tại sao:** Rubric admin mục 15 từ **ĐẠT MỘT PHẦN** → **ĐÃ ĐẠT**.
+
+---
+
+### 2.6. Kiểm tra trùng mã phiếu nhập
+
+**Hàm:** `saveImportWithStatus()` (dòng 725–782)
+
+**Trước:** Nếu trùng `importId`, ghi đè luôn phiếu cũ (kể cả đã hoàn thành).
+
+**Sau:**
+- Nếu trùng và phiếu cũ đã hoàn thành → alert, không cho ghi đè
+- Nếu trùng và phiếu cũ là nháp → confirm trước khi ghi đè
+
+---
+
+### 2.7. Chặn số lượng âm trong phiếu nhập
+
+**Hàm:** `addItemToImport()` (dòng 655–668)
+
+**Trước:** `parseInt("-5")` là -5 (truthy), số lượng âm vẫn được nhận.
+
+**Sau:** Kiểm tra `Number.isInteger(qty) && qty > 0`, alert nếu sai.
+
+---
+
+### 2.8. Lưu lịch sử thay đổi giá
+
+**Hàm:** `saveProfitRate()` (dòng 904–933)
+
+**Sau:** Khi giá thay đổi, lưu vào `p.priceHistory` mảng chứa `{date, oldPrice, newPrice, profitRate, note}`.
+
+---
+
+### 2.9. Ngăn XSS trong bảng admin
+
+Thêm `escapeHtml()` cho: username, fullName, phone, code, name, category name, orderId, recipientName, phone, status.
+
+---
+
+## 3. scripts/account.js
+
+### 3.1. `saveProfileChanges()` không ghi đè password/isLocked
+
+**Trước:** `users[idx] = user` — ghi đè **toàn bộ object** user. Nếu `sessionStorage` có dữ liệu cũ (isLocked false, password cũ), sẽ ghi đè lên `localStorage` (isLocked true, password mới).
+
+**Ví dụ hậu quả:** Admin khóa tài khoản → khách lưu hồ sơ → tài khoản bị mở khóa lại.
+
+**Sau:** Chỉ cập nhật 3 trường `fullName`, `phone`, `address` của bản ghi đang tồn tại, **không chạm** `password` và `isLocked`.
+
+```diff
+- users[idx] = user;
++ users[idx].fullName = fullName;
++ users[idx].phone = phone;
++ users[idx].address = address;
+```
+
+**Rubric:** End-user mục 3 từ **ĐẠT MỘT PHẦN** → **ĐÃ ĐẠT**.
+
+---
+
+## 4. scripts/shopping.js
+
+### 4.1. Chặn vào giỏ hàng khi chưa đăng nhập
+
+**Hàm:** `renderCart()` (dòng 6–11)
+
+**Trước:** Mở thẳng `shopping.html#view-cart` vẫn xem được giỏ dù chưa đăng nhập.
+
+**Sau:** Kiểm tra `getCurrentUser()`. Nếu null → hiện thông báo "Bạn cần đăng nhập để xem giỏ hàng."
+
+### 4.2. Chặn xem lịch sử đơn khi chưa đăng nhập
+
+**Hàm:** `renderOrderHistory()` (dòng 180–186)
+
+**Trước:** `if (!user) return;` → bảng trắng, không thông báo.
+
+**Sau:** Hiện thông báo "Bạn cần đăng nhập để xem lịch sử đơn hàng."
+
+---
+
+### 4.3. Kiểm tra tồn kho trước khi đặt hàng
+
+**Hàm:** `submitOrder()` (dòng trước `newOrder`)
+
+**Trước:** Đặt hàng luôn thành công dù không đủ tồn kho.
+
+**Sau:** Duyệt giỏ hàng, gọi `getAvailableStock(item.id)`. Nếu bất kỳ sản phẩm nào không đủ → alert và **huỷ đơn**.
+
+**Ví dụ:** Giỏ có "Bàn phím Akko" (x3) nhưng tồn chỉ còn 2 → alert: "Sản phẩm sau đây không đủ tồn kho: Bàn phím cơ Akko 3084 Silent (còn 2, bạn đặt 3)".
+
+---
+
+### 4.4. Kiểm tra trùng mã đơn hàng
+
+**Hàm:** `submitOrder()` (dòng tạo `newOrder`)
+
+**Trước:** `orderId` random 4 chữ số, có thể trùng.
+
+**Sau:** `while` loop sinh lại mã nếu trùng với đơn đã có.
+
+---
+
+### 4.5. Kiểm tra sở hữu đơn hàng khi xem chi tiết
+
+**Hàm:** `viewClientOrderDetailById(orderId)` (dòng 247–264)
+
+**Trước:** Biết `orderId` là xem được chi tiết đơn của khách khác.
+
+**Sau:**
+1. Kiểm tra đăng nhập
+2. Tìm đơn theo `orderId`
+3. Kiểm tra `order.username !== user.username` → alert "Bạn không có quyền xem chi tiết đơn hàng này."
+
+**Rubric:** End-user mục 12 từ **ĐẠT MỘT PHẦN** (thiếu check sở hữu) → **ĐÃ ĐẠT** (cần xác nhận lại với rubric chi tiết).
+
+---
+
+### 4.6. Ngăn XSS
+
+Thêm `escapeHtml()` vào tên sản phẩm trong giỏ, hóa đơn, lịch sử đơn.
+
+---
+
+## 5. admin.html
+
+### 5.1. Cột % Lợi nhuận trong bảng loại
+
+**Trước:** 5 cột (Mã loại, Tên loại, Số sản phẩm, Trạng thái, Thao tác).
+
+**Sau:** 6 cột (Mã loại, Tên loại, **% Lợi nhuận**, Số sản phẩm, Trạng thái, Thao tác).
+
+### 5.2. Ô nhập % loại trong modal
+
+**Trước:** Modal loại chỉ có Mã loại, Tên loại.
+
+**Sau:** Thêm `#cat-profit-rate-input` (min 0, max 100000, step 0.01).
+
+### 5.3. Gợi ý % loại trong modal sản phẩm
+
+**Trước:** Select loại không có thông tin %.
+
+**Sau:** Thêm `#prod-cat-rate-hint` hiển thị "% lợi nhuận của loại 'X': 30%".
+
+### 5.4. Placeholder tìm phiếu nhập mở rộng
+
+**Trước:** "Tìm theo mã phiếu nhập…"
+
+**Sau:** "Tìm theo mã phiếu, ngày nhập, sản phẩm…"
+
+### 5.5. Bộ lọc giá bán (CHÍNH)
+
+**Trước:** Không có ô tìm, không có lọc, không có sắp xếp.
+
+**Sau:** Thêm `search-pricing-input`, `filter-pricing-category`, `filter-pricing-sort`, nút `resetPricingFilter`.
+
+### 5.6. Sửa header bảng tồn kho
+
+**Trước:** `Tổng Nhập | Tổng Xuất | Tồn Hiện Tại | Tồn Đầu Kỳ` (lệch so với dữ liệu JS render).
+
+**Sau:** `Tồn Đầu Kỳ | Tổng Nhập | Tổng Xuất | Tồn Cuối Kỳ` (khớp với `getInventoryNumbers()`).
+
+---
+
+## 6. shopping.html
+
+### 6.1. Nút in hóa đơn
+
+**Thêm:** `<button onclick="window.print()">In hóa đơn</button>` trên trang đặt hàng thành công.
+
+---
+
+## 8. styles/common.css
+
+### 8.1. Responsive cho mobile
+
+**Thêm:** `@media (max-width: 768px)`
+- Sidebar admin ẩn
+- Bảng co cự (padding nhỏ hơn)
+- Modal rộng 95%
+- Nút full width
+- Grid layout stacking (1 cột thay vì 2 cột)
+
+---
+
+## FILE ĐÃ THAY ĐỔI (TỔNG HỢP)
+
+| File | Thao tác | Nội dung chính |
+|------|----------|----------------|
+| `scripts/common.js` | Sửa + thêm | profitRate category, migration, escapeHtml, getAvailableStock, sửa seed (tổng + 4 giá) |
+| `scripts/admin.js` | Sửa + thêm | % theo loại, tìm phiếu nhập, tra cứu giá, escapeHtml, kiểm tra trùng mã phiếu, số lượng âm, priceHistory |
+| `scripts/account.js` | Sửa | saveProfileChanges chỉ cập nhật 3 trường, không ghi đè password/isLocked |
+| `scripts/shopping.js` | Sửa + thêm | kiểm tra tồn kho, kiểm tra trùng orderId, kiểm tra sở hữu đơn hàng, chặn vào giỏ khi chưa đăng nhập, escapeHtml |
+| `admin.html` | Sửa | cột % loại, ô nhập % loại, bộ lọc giá bán, header tồn kho, placeholder tìm phiếu |
+| `shopping.html` | Sửa | nút in hóa đơn |
+| `index.html` | Sửa | xóa duplicate DOCTYPE |
+| `account.html` | Sửa | xóa duplicate DOCTYPE |
+| `styles/common.css` | Thêm | responsive @media 768px |
+| `.gitignore` | Tạo mới | bỏ qua file rác Windows, IDE, node_modules, log, .env |
+| `PATCH_SUMMARY.md` | Tạo mới | File này |
+
+---
+

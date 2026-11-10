@@ -4,6 +4,12 @@
    ======================================================== */
 
 function renderCart() {
+  const user = getCurrentUser();
+  if (!user) {
+    document.getElementById("cart-table-body").innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px; color: var(--text-muted);">Bạn cần đăng nhập để xem giỏ hàng.</td></tr>`;
+    document.getElementById("cart-total-price").innerText = formatVND(0);
+    return;
+  }
   const cart = getCart();
   const tbody = document.getElementById("cart-table-body");
   tbody.innerHTML = "";
@@ -20,7 +26,7 @@ function renderCart() {
           <td>
             <div style="display: flex; align-items: center; gap: 10px;">
               <img src="${item.image}" width="45" height="45" style="object-fit: contain; background: #eee; border-radius: 4px;" onerror="this.onerror=null;this.src='static/images/default-product.svg';">
-              <strong>${item.name}</strong>
+              <strong>${escapeHtml(item.name)}</strong>
             </div>
           </td>
           <td>${formatVND(item.price)}</td>
@@ -125,6 +131,19 @@ function submitOrder() {
   const cart = getCart();
   let total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
+  // Kiểm tra tồn kho trước khi đặt hàng
+  const outOfStock = [];
+  for (const item of cart) {
+    const stock = getAvailableStock(item.id);
+    if (item.quantity > stock) {
+      outOfStock.push(`${item.name} (còn ${stock}, bạn đặt ${item.quantity})`);
+    }
+  }
+  if (outOfStock.length > 0) {
+    alert("Sản phẩm sau đây không đủ tồn kho:\n- " + outOfStock.join("\n- "));
+    return;
+  }
+
   const newOrder = {
     orderId: "DH-" + Math.floor(1000 + Math.random() * 9000),
     date: new Date().toISOString().split("T")[0],
@@ -138,7 +157,12 @@ function submitOrder() {
     total: total
   };
 
+  // Kiểm tra trùng mã đơn, sinh lại nếu trùng
   const orders = getOrders();
+  while (orders.some(o => o.orderId === newOrder.orderId)) {
+    newOrder.orderId = "DH-" + Math.floor(1000 + Math.random() * 9000);
+  }
+
   orders.unshift(newOrder);
   setOrders(orders);
 
@@ -154,7 +178,7 @@ function renderInvoice(order) {
   const div = document.getElementById("invoice-details");
   let itemsHtml = order.items.map(it => `
     <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0;">
-      <span>${it.name} (x${it.quantity})</span>
+      <span>${escapeHtml(it.name)} (x${it.quantity})</span>
       <span>${formatVND(it.price * it.quantity)}</span>
     </div>
   `).join('');
@@ -179,7 +203,10 @@ function renderInvoice(order) {
 
 function renderOrderHistory() {
   const user = getCurrentUser();
-  if (!user) return;
+  if (!user) {
+    document.getElementById("order-history-tbody").innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 24px; color: var(--text-muted);">Bạn cần đăng nhập để xem lịch sử đơn hàng.</td></tr>`;
+    return;
+  }
 
   const orders = getOrders().filter(o => o.username === user.username);
   const tbody = document.getElementById("order-history-tbody");
@@ -198,14 +225,14 @@ function renderOrderHistory() {
 
     tbody.innerHTML += `
       <tr>
-        <td><strong>${o.orderId}</strong></td>
-        <td>${o.date}</td>
-        <td>${o.recipientName}</td>
+        <td><strong>${escapeHtml(o.orderId)}</strong></td>
+        <td>${escapeHtml(o.date)}</td>
+        <td>${escapeHtml(o.recipientName)}</td>
         <td><strong>${formatVND(o.total)}</strong></td>
-        <td>${o.paymentMethod}</td>
-        <td><span class="badge ${statusBadge}">${o.status}</span></td>
+        <td>${escapeHtml(o.paymentMethod)}</td>
+        <td><span class="badge ${statusBadge}">${escapeHtml(o.status)}</span></td>
         <td>
-          <button class="btn btn-outline-primary btn-sm" data-js-action="viewClientOrderDetailById" data-js-args='["${o.orderId}"]' data-js-event="click">Xem</button>
+          <button class="btn btn-outline-primary btn-sm" data-js-action="viewClientOrderDetailById" data-js-args='["${escapeHtml(o.orderId)}"]' data-js-event="click">Xem</button>
         </td>
       </tr>
     `;
@@ -218,11 +245,24 @@ function viewClientOrderDetail(order) {
 }
 
 function viewClientOrderDetailById(orderId) {
+  const user = getCurrentUser();
+  if (!user) {
+    alert("Bạn cần đăng nhập để xem chi tiết đơn hàng.");
+    return;
+  }
+
   const order = getOrders().find(item => item.orderId === orderId);
   if (!order) {
     alert("Không tìm thấy thông tin đơn hàng.");
     return;
   }
+
+  // Kiểm tra sở hữu đơn hàng: chỉ chủ sở hữu đơn hàng mới được xem chi tiết
+  if (order.username !== user.username) {
+    alert("Bạn không có quyền xem chi tiết đơn hàng này.");
+    return;
+  }
+
   viewClientOrderDetail(order);
 }
 

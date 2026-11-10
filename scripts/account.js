@@ -90,23 +90,26 @@ function saveProfileChanges() {
   const user = getCurrentUser();
   if (!user) return;
 
-  user.fullName = document.getElementById("prof-fullname").value.trim();
-  user.phone = document.getElementById("prof-phone").value.trim();
-  user.address = document.getElementById("prof-address").value.trim();
+  const fullName = document.getElementById("prof-fullname").value.trim();
+  const phone = document.getElementById("prof-phone").value.trim();
+  const address = document.getElementById("prof-address").value.trim();
+
+  // Chỉ cho phép cập nhật 3 trường này, KHÔNG ghi đè password / isLocked
+  user.fullName = fullName;
+  user.phone = phone;
+  user.address = address;
 
   let users = getUsers();
   const idx = users.findIndex(u => u.username === user.username);
   if (idx !== -1) {
-    users[idx] = user;
+    users[idx].fullName = fullName;
+    users[idx].phone = phone;
+    users[idx].address = address;
     setUsers(users);
   }
   setCurrentUser(user);
   alert("Cập nhật thông tin cá nhân thành công!");
 }
-
-/* ========================================================
-   KHỞI TẠO RIÊNG TRANG TÀI KHOẢN
-   ======================================================== */
 
 window.addEventListener("load", () => {
   if (document.getElementById('view-profile')?.classList.contains('active')) loadProfile();

@@ -8,12 +8,12 @@
    1. DATABASE DỮ LIỆU MẪU KHỞI TẠO (MOCK DATABASE LOCALSTORAGE)
    ======================================================== */
 const DEFAULT_CATEGORIES = [
-  { id: "cat-1", code: "ban-phim", name: "Bàn Phím", isHidden: false },
-  { id: "cat-2", code: "chuot", name: "Chuột Máy Tính", isHidden: false },
-  { id: "cat-3", code: "tai-nghe", name: "Tai Nghe", isHidden: false },
-  { id: "cat-4", code: "phu-kien", name: "Phụ Kiện Khác", isHidden: false },
-  { id: "cat-5", code: "dien-thoai", name: "Điện Thoại", isHidden: false },
-  { id: "cat-6", code: "laptop", name: "Laptop", isHidden: false }
+  { id: "cat-1", code: "ban-phim", name: "Bàn Phím", profitRate: 30, isHidden: false },
+  { id: "cat-2", code: "chuot", name: "Chuột Máy Tính", profitRate: 30, isHidden: false },
+  { id: "cat-3", code: "tai-nghe", name: "Tai Nghe", profitRate: 30, isHidden: false },
+  { id: "cat-4", code: "phu-kien", name: "Phụ Kiện Khác", profitRate: 30, isHidden: false },
+  { id: "cat-5", code: "dien-thoai", name: "Điện Thoại", profitRate: 30, isHidden: false },
+  { id: "cat-6", code: "laptop", name: "Laptop", profitRate: 30, isHidden: false }
 ];
 
 const DEFAULT_PRODUCTS = [
@@ -24,7 +24,7 @@ const DEFAULT_PRODUCTS = [
     name: "Bàn phím cơ Akko 3084 Silent",
     costPrice: 850000,
     profitRate: 35,
-    price: 1150000,
+    price: 1147500,
     image: "static/images/keyboard-akko.jpg",
     description: "Bàn phím cơ 84 phím nhỏ gọn, kết nối Type-C, switch Akko chất lượng cao, gõ êm.",
     isHidden: false
@@ -36,7 +36,7 @@ const DEFAULT_PRODUCTS = [
     name: "Bàn phím Dareu EK87 White",
     costPrice: 420000,
     profitRate: 30,
-    price: 550000,
+    price: 546000,
     image: "static/images/keyboard-dareu.jpg",
     description: "Thiết kế Tenkeyless 87 phím, đèn LED Rainbow rực rỡ, switch D-Switch bền bỉ.",
     isHidden: false
@@ -60,7 +60,7 @@ const DEFAULT_PRODUCTS = [
     name: "Chuột Gaming Logitech G102 Lightsync",
     costPrice: 310000,
     profitRate: 35,
-    price: 420000,
+    price: 418500,
     image: "static/images/mouse-logitech-g102.jpg",
     description: "Cảm biến 8000 DPI chuẩn gaming, hệ thống LED RGB Lightsync 16.8 triệu màu.",
     isHidden: false
@@ -108,7 +108,7 @@ const DEFAULT_PRODUCTS = [
     name: "USB Kingston 32GB DataTraveler",
     costPrice: 85000,
     profitRate: 40,
-    price: 120000,
+    price: 119000,
     image: "static/images/usb-kingston.jpg",
     description: "Chuẩn USB 3.2 Gen 1 tốc độ cao, thiết kế nắp xoay kim loại bền đẹp.",
     isHidden: false
@@ -326,6 +326,27 @@ function applySeedUpdates() {
   localStorage.setItem("app_seed_version", String(SEED_VERSION));
 }
 
+// Bổ sung % lợi nhuận mặc định cho loại sản phẩm cũ (dữ liệu tạo trước bản cập nhật).
+// Không ghi đè % đã có để không làm thay đổi giá bán người dùng đã thiết lập.
+function applyCategoryProfitRateDefaults() {
+  const categories = getCategories();
+  let updated = false;
+
+  categories.forEach(category => {
+    const rate = Number(category.profitRate);
+    const isMissing = category.profitRate === undefined ||
+      category.profitRate === null ||
+      category.profitRate === "" ||
+      !Number.isFinite(rate);
+    if (isMissing) {
+      category.profitRate = 30;
+      updated = true;
+    }
+  });
+
+  if (updated) setCategories(categories);
+}
+
 // Khởi tạo Storage nếu chưa có
 function initDataStorage() {
   if (!localStorage.getItem("app_categories")) {
@@ -349,6 +370,10 @@ function initDataStorage() {
 
   // Bổ sung danh mục / sản phẩm mới cho người đã dùng app trước bản cập nhật này.
   applySeedUpdates();
+
+  // Bổ sung % lợi nhuận cho loại sản phẩm được tạo trước khi có chức năng này.
+  // Chỉ điền giá trị thiếu, không ghi đè % người dùng đã nhập.
+  applyCategoryProfitRateDefaults();
 
   if (!localStorage.getItem("app_users")) {
     localStorage.setItem("app_users", JSON.stringify(DEFAULT_USERS));
@@ -383,7 +408,7 @@ function initDataStorage() {
         { productId: "prod-4", quantity: 30, costPrice: 310000 },
         { productId: "prod-5", quantity: 2, costPrice: 620000 } // Tồn ít để test cảnh báo
       ],
-      totalAmount: 22390000
+      totalAmount: 31690000
     }];
     localStorage.setItem("app_imports", JSON.stringify(sampleImport));
   }
@@ -400,6 +425,21 @@ function setProducts(data) { localStorage.setItem("app_products", JSON.stringify
 function getVisibleProducts() {
   const hiddenCategoryIds = getCategories().filter(c => c.isHidden).map(c => c.id);
   return getProducts().filter(p => !p.isHidden && !hiddenCategoryIds.includes(p.categoryId));
+}
+
+// Tính tồn kho có sẵn của một sản phẩm: nhập hoàn thành - đơn đã xử lý/giao
+function getAvailableStock(prodId) {
+  const imports = getImports().filter(imp => imp.status === 'completed');
+  const orders = getOrders().filter(o => o.status === 'Đã xử lý' || o.status === 'Đã giao');
+
+  let stock = 0;
+  imports.forEach(imp => {
+    imp.items.forEach(it => { if (it.productId === prodId) stock += it.quantity; });
+  });
+  orders.forEach(order => {
+    order.items.forEach(it => { if (it.id === prodId) stock -= it.quantity; });
+  });
+  return Math.max(0, stock);
 }
 function getUsers() { return JSON.parse(localStorage.getItem("app_users")) || []; }
 function setUsers(data) { localStorage.setItem("app_users", JSON.stringify(data)); }
@@ -422,6 +462,24 @@ function isAdminLoggedIn() { return sessionStorage.getItem("admin_logged") === "
 
 function formatVND(amount) {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+}
+
+// Chuẩn hóa từ khóa tìm kiếm: bỏ dấu tiếng Việt, đổi "đ" thành "d", chữ thường.
+// Dùng chung cho tìm kiếm sản phẩm, phiếu nhập và bảng giá bán ở trang admin.
+function normalizeSearchText(value) {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .toLowerCase()
+    .trim();
+}
+
+// Escape HTML để ngăn chặn XSS khi hiển thị dữ liệu người dùng bằng innerHTML
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.appendChild(document.createTextNode(String(text ?? "")));
+  return div.innerHTML;
 }
 
 /* ========================================================

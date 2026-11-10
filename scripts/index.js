@@ -19,15 +19,6 @@ function loadFilterCategories() {
   });
 }
 
-function normalizeSearchText(value) {
-  return String(value ?? "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .toLowerCase()
-    .trim();
-}
-
 function applyAdvancedFilter() {
   const keyword = normalizeSearchText(document.getElementById("filter-keyword").value);
   const catId = document.getElementById("filter-category").value;

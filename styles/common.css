@@ -377,3 +377,68 @@ footer {
     display: flex;
     gap: 10px;
 }
+
+/* =========================
+   RESPONSIVE - thiết bị di động
+   ========================= */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        display: none;
+    }
+    .admin-wrapper {
+        flex-direction: column;
+    }
+    .admin-content {
+        margin-left: 0;
+        padding: 10px;
+    }
+    .top-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    .search-box-top {
+        width: 100%;
+    }
+    .search-box-top input {
+        width: 100%;
+    }
+    .nav-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+    }
+    .custom-table {
+        font-size: 12px;
+    }
+    .custom-table th,
+    .custom-table td {
+        padding: 6px 4px;
+    }
+    .admin-style-e1adcfb1 {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    .admin-style-d7a0a53e {
+        grid-template-columns: 1fr;
+    }
+    .admin-style-15eaf46b {
+        grid-template-columns: 1fr;
+    }
+    .admin-style-37344238 {
+        grid-template-columns: 1fr;
+    }
+    .modal-content {
+        width: 95%;
+        margin: 10px auto;
+    }
+    .btn {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .cart-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+    }
+}

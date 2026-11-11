@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html lang="vi">
 
@@ -151,6 +151,8 @@
                                                                 <tr>
                                                                         <th>Mã loại</th>
                                                                         <th>Tên loại sản phẩm</th>
+                                                                        <th>% Lợi nhuận</th>
+                                                                        <th>Số sản phẩm</th>
                                                                         <th>Trạng thái</th>
                                                                         <th>Thao tác</th>
                                                                 </tr>
@@ -197,7 +199,7 @@
                                                         <input class="form-control"
                                                                 data-js-action="renderImportReceipts" data-js-args="[]"
                                                                 data-js-event="input" id="search-import-input"
-                                                                placeholder="Tìm theo mã phiếu nhập..." type="text" />
+                                                                placeholder="Tìm theo mã phiếu, ngày nhập, sản phẩm..." type="text" />
                                                 </div>
                                                 <table class="custom-table">
                                                         <thead>
@@ -218,8 +220,44 @@
                                                         Giá Bán</h3>
                                                 <p class="admin-style-3328fff6">
                                                         Công thức: <strong>Giá bán = Giá vốn * (1 + % Lợi nhuận /
-                                                                100)</strong>
+                                                                100)</strong>.
                                                 </p>
+                                                <div class="admin-style-e1adcfb1">
+                                                        <div>
+                                                                <label class="admin-style-389f86ab">Tìm kiếm:</label>
+                                                                <input class="form-control" id="search-pricing-input"
+                                                                        data-js-action="renderAdminPricing"
+                                                                        data-js-args="[]" data-js-event="input"
+                                                                        placeholder="Mã SP, tên sản phẩm, loại..."
+                                                                        type="text" />
+                                                        </div>
+                                                        <div>
+                                                                <label class="admin-style-389f86ab">Loại sản phẩm:</label>
+                                                                <select class="form-select" id="filter-pricing-category"
+                                                                        data-js-action="renderAdminPricing"
+                                                                        data-js-args="[]" data-js-event="change">
+                                                                        <option value="all">-- Tất cả --</option>
+                                                                </select>
+                                                        </div>
+                                                        <div>
+                                                                <label class="admin-style-389f86ab">Sắp xếp:</label>
+                                                                <select class="form-select" id="filter-pricing-sort"
+                                                                        data-js-action="renderAdminPricing"
+                                                                        data-js-args="[]" data-js-event="change">
+                                                                        <option value="default">Mặc định</option>
+                                                                        <option value="price-asc">Giá bán tăng dần</option>
+                                                                        <option value="price-desc">Giá bán giảm dần</option>
+                                                                        <option value="rate-asc">% Lợi nhuận tăng dần</option>
+                                                                        <option value="rate-desc">% Lợi nhuận giảm dần</option>
+                                                                </select>
+                                                        </div>
+                                                        <div class="admin-style-387e0d35">
+                                                                <button class="btn btn-secondary"
+                                                                        data-js-action="resetPricingFilter"
+                                                                        data-js-args="[]" data-js-event="click">Xóa
+                                                                        lọc</button>
+                                                        </div>
+                                                </div>
                                                 <table class="custom-table">
                                                         <thead>
                                                                 <tr>
@@ -228,7 +266,7 @@
                                                                         <th>Loại</th>
                                                                         <th>Giá vốn (nhập gần nhất)</th>
                                                                         <th>% Lợi nhuận</th>
-                                                                        <th>Giá bán tự động</th>
+                                                                        <th>Giá bán</th>
                                                                         <th>Thao tác</th>
                                                                 </tr>
                                                         </thead>
@@ -339,10 +377,10 @@
                                                                         <th>Mã SP</th>
                                                                         <th>Tên linh kiện</th>
                                                                         <th>Loại</th>
+                                                                        <th>Tồn Đầu Kỳ</th>
                                                                         <th>Tổng Nhập</th>
                                                                         <th>Tổng Xuất</th>
-                                                                        <th>Tồn Hiện Tại</th>
-                                                                        <th>Tồn Đầu Kỳ</th>
+                                                                        <th>Tồn Cuối Kỳ</th>
                                                                         <th>Cảnh Báo Hết Hàng</th>
                                                                 </tr>
                                                         </thead>
@@ -371,7 +409,7 @@
                                                         <thead>
                                                                 <tr>
                                                                         <th>Sản phẩm</th>
-                                                                        <th>Tồn Đầu Kỳ</th>
+                                                                        <th>Tồn Cuối Kỳ</th>
                                                                         <th>Nhập Trong Kỳ</th>
                                                                         <th>Xuất Trong Kỳ</th>
                                                                         <th>Tồn Cuối Kỳ</th>
@@ -401,12 +439,43 @@
                                         <label>Tên loại sản phẩm</label>
                                         <input class="form-control" id="cat-name-input" type="text" />
                                 </div>
+                                <div class="form-group">
+                                        <label>% Lợi nhuận áp dụng cho loại</label>
+                                        <input class="form-control" id="cat-profit-rate-input" max="100000" min="0"
+                                                step="0.01" type="number" />
+                                        <small style="color: var(--text-muted); display: block; margin-top: 4px;">
+                                                Sản phẩm mới thuộc loại này sẽ dùng % này. Sản phẩm cũ giữ nguyên cho
+                                                đến khi bấm "Áp % cho SP" ở bảng loại sản phẩm.
+                                        </small>
+                                </div>
                         </div>
                         <div class="modal-footer">
                                 <button class="btn btn-secondary" data-js-action="closeModal"
                                         data-js-args='["modal-category"]' data-js-event="click">Hủy</button>
                                 <button class="btn btn-primary" data-js-action="saveCategory" data-js-args="[]"
                                         data-js-event="click">Lưu Loại</button>
+                        </div>
+                </div>
+        </div>
+        <div class="modal-overlay" id="modal-delete-category">
+                <div class="modal-content admin-style-865a9687">
+                        <div class="modal-header">
+                                <h4>Xóa Loại Sản Phẩm</h4>
+                                <button class="btn btn-sm btn-secondary" data-js-action="closeModal"
+                                        data-js-args='["modal-delete-category"]' data-js-event="click">×</button>
+                        </div>
+                        <div class="modal-body">
+                                <p id="delete-cat-warning" style="line-height: 1.7; margin: 0;"></p>
+                        </div>
+                        <div class="modal-footer" style="flex-wrap: wrap;">
+                                <button class="btn btn-secondary" data-js-action="closeModal"
+                                        data-js-args='["modal-delete-category"]' data-js-event="click">Hủy</button>
+                                <button class="btn btn-outline-primary" id="btn-hide-category" data-js-action="hideCategoryInstead"
+                                        data-js-args="[]" data-js-event="click">Ẩn loại</button>
+                                <button class="btn btn-danger" id="btn-confirm-delete-category" data-js-action="confirmDeleteCategory"
+                                        data-js-args="[]" data-js-event="click">Vẫn xóa loại</button>
+                                <button class="btn btn-danger" id="btn-delete-category-products" data-js-action="deleteCategoryWithProducts"
+                                        data-js-args="[]" data-js-event="click">Xóa loại + sản phẩm</button>
                         </div>
                 </div>
         </div>
@@ -426,7 +495,11 @@
                                         </div>
                                         <div class="form-group">
                                                 <label>Loại sản phẩm</label>
-                                                <select class="form-select" id="prod-cat-select"></select>
+                                                <select class="form-select" id="prod-cat-select"
+                                                        data-js-action="updateProductCategoryRateHint"
+                                                        data-js-args="[]" data-js-event="change"></select>
+                                                <small id="prod-cat-rate-hint"
+                                                        style="color: var(--text-muted); display: block; margin-top: 4px;"></small>
                                         </div>
                                 </div>
                                 <div class="form-group u-style-560df82d">
@@ -514,7 +587,7 @@
         <div class="modal-overlay" id="modal-profit">
                 <div class="modal-content admin-style-06ccf079">
                         <div class="modal-header">
-                                <h4>Cập Nhật % Lợi Nhuận</h4>
+                                <h4>Cập Nhật Giá Bán &amp; % Lợi Nhuận</h4>
                                 <button class="btn btn-sm btn-secondary" data-js-action="closeModal"
                                         data-js-args='["modal-profit"]' data-js-event="click">×</button>
                         </div>
@@ -525,9 +598,21 @@
                                         <input class="form-control" disabled="" id="profit-prod-name" type="text" />
                                 </div>
                                 <div class="form-group">
-                                        <label>Tỉ lệ % Lợi nhuận mong muốn</label>
-                                        <input class="form-control" id="profit-rate-input" max="500" min="0" step="1"
-                                                type="number" />
+                                        <label>Giá vốn</label>
+                                        <input class="form-control" disabled="" id="profit-cost-display" type="text" />
+                                        <input id="profit-cost-value" type="hidden" />
+                                </div>
+                                <div class="form-group">
+                                        <label>Giá bán</label>
+                                        <input class="form-control" id="profit-price-input" min="0" step="1"
+                                                type="number" data-js-action="syncProfitFromPrice"
+                                                data-js-args="[]" data-js-event="input" />
+                                </div>
+                                <div class="form-group u-style-560df82d">
+                                        <label>Tỉ lệ % Lợi nhuận</label>
+                                        <input class="form-control" id="profit-rate-input" max="100000" min="0" step="0.0001"
+                                                type="number" data-js-action="syncPriceFromProfit"
+                                                data-js-args="[]" data-js-event="input" />
                                 </div>
                         </div>
                         <div class="modal-footer">
@@ -556,7 +641,8 @@
                 <p>Đồ án cuối kỳ Học phần: Lập trình web và ứng dụng - Clickable Prototype Website</p>
                 <p class="u-style-a3452ca1">Hỗ trợ chấm Local Offline trên Google Chrome / Firefox.</p>
         </footer>
-        <script src="scripts/app.js"></script>
+        <script src="scripts/common.js"></script>
+        <script src="scripts/admin.js"></script>
 </body>
 
 </html>
